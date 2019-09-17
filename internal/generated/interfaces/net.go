@@ -8,7 +8,7 @@ type NetAttr struct {
 // Net 网络传输服务
 type Net interface {
 	SetAttr(attr *NetAttr)
-	Register(handler *Handler)
+	Register(handler Handler)
 	Start() error
 	Stop() error
 }
