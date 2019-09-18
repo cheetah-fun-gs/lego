@@ -5,23 +5,23 @@ import (
 	"time"
 )
 
-// CtxKey ctx key
-type CtxKey interface{}
+// ContextKey ctx key
+type ContextKey interface{}
 
 // ctx 所用到的key
 var (
-	CtxKeyDeadline CtxKey = "deadline"
+	ContextKeyDeadline ContextKey = "deadline"
 )
 
 // DumpContext 导出上下文
-func DumpContext(ctx context.Context, keys []CtxKey) map[string]interface{} {
+func DumpContext(ctx context.Context, keys []ContextKey) map[string]interface{} {
 	r := map[string]interface{}{}
 	d, ok := ctx.Deadline()
 	if ok {
-		r[CtxKeyDeadline.(string)] = d.Unix()
+		r[ContextKeyDeadline.(string)] = d.Unix()
 	}
 	for _, k := range keys {
-		v := ctx.Value(CtxKey(k))
+		v := ctx.Value(ContextKey(k))
 		if v != nil {
 			r[k.(string)] = v
 		}
@@ -34,12 +34,12 @@ func LoadContext(data map[string]interface{}) context.Context {
 	ctx := context.Background()
 	var cancel func()
 	for k, v := range data {
-		if k == CtxKeyDeadline.(string) {
+		if k == ContextKeyDeadline.(string) {
 			d := time.Unix(v.(int64), 0)
 			ctx, cancel = context.WithDeadline(ctx, d)
 			defer cancel()
 		} else {
-			ctx = context.WithValue(ctx, CtxKey(k), v)
+			ctx = context.WithValue(ctx, ContextKey(k), v)
 		}
 	}
 	return ctx

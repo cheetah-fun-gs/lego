@@ -9,8 +9,8 @@ type Handler struct {
 	Name       string
 	URI        string
 	HTTPMethod string
-	Req        interface{}
-	Resp       interface{}
+	Req        interface{} // 请求结构体指针
+	Resp       interface{} // 响应结构体指针
 	Func       func(ctx context.Context, req, resp interface{}) error
 }
 
