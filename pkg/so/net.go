@@ -1,4 +1,4 @@
-package interfaces
+package so
 
 // NetAttr 网络传输服务属性
 type NetAttr struct {
