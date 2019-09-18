@@ -4,35 +4,43 @@ import (
 	"context"
 	"encoding/json"
 	"goso/pkg/so"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// DefaultHook 默认的注入方法
-func DefaultHook(req, resp interface{}, handle func(ctx context.Context, req, resp interface{}) error) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		rawPack, err := ioutil.ReadAll(c.Request.Body)
-		if err != nil {
-			c.Status(http.StatusBadRequest)
-			return
-		}
-
-		err = json.Unmarshal(rawPack, req)
-		if err != nil {
-			c.Status(http.StatusGatewayTimeout)
-			return
-		}
-
+// DefaultBeforeHandleFunc 默认的预处理
+func DefaultBeforeHandleFunc(c *gin.Context, req interface{}) (ctx context.Context, err error) {
+	rawPack, err := c.GetRawData()
+	if err != nil {
+		c.Status(http.StatusBadRequest) // 不建议使用 http code, 可以通过 SetBeforeHandleFunc 替换
+		return
 	}
+
+	err = json.Unmarshal(rawPack, req)
+	if err != nil {
+		c.Status(http.StatusBadRequest) // 不建议使用 http code, 可以通过 SetBeforeHandleFunc 替换
+		return
+	}
+
+	return ctx, nil
+}
+
+// DefaultAfterHandleFunc 默认的
+func DefaultAfterHandleFunc(c *gin.Context, resp interface{}) error {
+	c.JSON(http.StatusOK, resp)
+	return nil
 }
 
 // New 一个新的默认sogin对象
 func New() (*SoGin, error) {
 	router := gin.Default()
 	return &SoGin{
-		Engine:  router,
-		NetAttr: &so.NetAttr{},
+		Engine: router,
+		NetAttr: &so.NetAttr{
+			Ports: []int{8000},
+		},
+		BeforeHandleFunc: DefaultBeforeHandleFunc,
+		AfterHandleFunc:  DefaultAfterHandleFunc,
 	}, nil
 }

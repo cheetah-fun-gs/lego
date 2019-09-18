@@ -9,7 +9,9 @@ type Handler struct {
 	Name       string
 	URI        string
 	HTTPMethod string
-	HandleFunc func(ctx context.Context, req interface{}) (resp interface{}, err error)
+	Req        interface{}
+	Resp       interface{}
+	Func       func(ctx context.Context, req, resp interface{}) error
 }
 
 // GetName 获取处理器名称
@@ -23,6 +25,6 @@ func (h *Handler) GetRouter() string {
 }
 
 // Handle 处理器方法
-func (h *Handler) Handle(ctx context.Context, req interface{}) (resp interface{}, err error) {
-	return h.HandleFunc(ctx, req)
+func (h *Handler) Handle(ctx context.Context, req, resp interface{}) error {
+	return h.Func(ctx, req, resp)
 }

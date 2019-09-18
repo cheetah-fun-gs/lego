@@ -13,8 +13,8 @@ import (
 type SoGin struct {
 	*gin.Engine
 	*so.NetAttr
-	BeforeHandleFunc func(c *gin.Context) (ctx context.Context, req interface{}, err error)
-	AfterHandleFunc  func(resp interface{}) error
+	BeforeHandleFunc func(c *gin.Context, req interface{}) (ctx context.Context, err error)
+	AfterHandleFunc  func(c *gin.Context, resp interface{}) error
 }
 
 // SetAttr 设置属性
@@ -23,12 +23,12 @@ func (soGin *SoGin) SetAttr(attr *so.NetAttr) {
 }
 
 // SetBeforeHandleFunc 设置before handle
-func (soGin *SoGin) SetBeforeHandleFunc(beforeHandleFunc func(c *gin.Context) (ctx context.Context, req interface{}, err error)) {
+func (soGin *SoGin) SetBeforeHandleFunc(beforeHandleFunc func(c *gin.Context, req interface{}) (ctx context.Context, err error)) {
 	soGin.BeforeHandleFunc = beforeHandleFunc
 }
 
 // SetAfterHandleFunc 设置after handle
-func (soGin *SoGin) SetAfterHandleFunc(afterHandleFunc func(resp interface{}) error) {
+func (soGin *SoGin) SetAfterHandleFunc(afterHandleFunc func(c *gin.Context, resp interface{}) error) {
 	soGin.AfterHandleFunc = afterHandleFunc
 }
 
@@ -38,15 +38,15 @@ func (soGin *SoGin) Register(handler *Handler) {
 		handler.HTTPMethod,
 		handler.URI,
 		func(c *gin.Context) {
-			ctx, req, err := soGin.BeforeHandleFunc(c)
+			ctx, err := soGin.BeforeHandleFunc(c, handler.Req)
 			if err != nil {
 				return
 			}
-			resp, err := handler.Handle(ctx, req)
+			err = handler.Handle(ctx, handler.Req, handler.Resp)
 			if err != nil {
 				return
 			}
-			err = soGin.AfterHandleFunc(resp)
+			err = soGin.AfterHandleFunc(c, handler.Resp)
 			if err != nil {
 				return
 			}
