@@ -33,26 +33,37 @@ func (soGin *SoGin) SetAfterHandleFunc(afterHandleFunc func(c *gin.Context, resp
 	soGin.AfterHandleFunc = afterHandleFunc
 }
 
+// SetGetContextFunc 设置get context func
+func (soGin *SoGin) SetGetContextFunc(getContextFunc func(c *gin.Context) (context.Context, error)) {
+	soGin.GetContextFunc = getContextFunc
+}
+
 // Register 注册处理器
-func (soGin *SoGin) Register(handler *Handler) {
+func (soGin *SoGin) Register(handler so.Handler) {
+	privateData := handler.GetPrivateData().(*HandlerPrivateData)
+	httpMethod := privateData.HTTPMethod
+
+	req := handler.GetReq()
+	resp := handler.GetResp()
+
 	soGin.Handle(
-		handler.HTTPMethod,
-		handler.URI,
+		httpMethod,
+		handler.GetRouter(),
 		func(c *gin.Context) {
 			ctx, err := soGin.GetContextFunc(c)
 			if err != nil {
 				return
 			}
 
-			err = soGin.BeforeHandleFunc(c, handler.Req)
+			err = soGin.BeforeHandleFunc(c, req)
 			if err != nil {
 				return
 			}
-			err = handler.Handle(ctx, handler.Req, handler.Resp)
+			err = handler.Handle(ctx, req, resp)
 			if err != nil {
 				return
 			}
-			err = soGin.AfterHandleFunc(c, handler.Resp)
+			err = soGin.AfterHandleFunc(c, resp)
 			if err != nil {
 				return
 			}
