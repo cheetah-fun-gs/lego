@@ -3,7 +3,6 @@ package sogin
 import (
 	"context"
 	"encoding/json"
-	"goso/pkg/so"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,15 +38,10 @@ func GateGetContextFunc(c *gin.Context) (context.Context, error) {
 }
 
 // NewGate 一个新的gate sogin对象
-func NewGate() (*SoGin, error) {
-	router := gin.Default()
-	return &SoGin{
-		Engine: router,
-		NetAttr: &so.NetAttr{
-			Ports: []int{8080},
-		},
-		GetContextFunc:   DefaultGetContextFunc,
-		BeforeHandleFunc: DefaultBeforeHandleFunc,
-		AfterHandleFunc:  DefaultAfterHandleFunc,
-	}, nil
+func NewGate(ports []int) (*SoGin, error) {
+	soGin, err := New(ports)
+	if err != nil {
+		return nil, err
+	}
+	return soGin, nil
 }

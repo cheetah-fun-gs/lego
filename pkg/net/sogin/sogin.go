@@ -9,18 +9,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// HandlerPrivateData 获取私有数据
+type HandlerPrivateData struct {
+	HTTPMethod string
+}
+
 // SoGin 符合goso net对象的 gin 服务
 type SoGin struct {
+	Ports []int
 	*gin.Engine
-	*so.NetAttr
 	GetContextFunc   func(c *gin.Context) (context.Context, error)
 	BeforeHandleFunc func(c *gin.Context, req interface{}) error
 	AfterHandleFunc  func(c *gin.Context, resp interface{}) error
-}
-
-// SetAttr 设置属性
-func (soGin *SoGin) SetAttr(attr *so.NetAttr) {
-	soGin.NetAttr = attr
 }
 
 // SetBeforeHandleFunc 设置before handle
@@ -54,7 +54,6 @@ func (soGin *SoGin) Register(handler so.Handler) {
 			if err != nil {
 				return
 			}
-
 			err = soGin.BeforeHandleFunc(c, req)
 			if err != nil {
 				return
@@ -75,7 +74,7 @@ func (soGin *SoGin) Register(handler so.Handler) {
 // Start 启动服务
 func (soGin *SoGin) Start() error {
 	addr := []string{}
-	for _, port := range soGin.NetAttr.Ports {
+	for _, port := range soGin.Ports {
 		addr = append(addr, fmt.Sprintf(":%d", port))
 	}
 	return soGin.Run(addr...)

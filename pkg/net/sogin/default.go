@@ -3,7 +3,6 @@ package sogin
 import (
 	"context"
 	"encoding/json"
-	"goso/pkg/so"
 	"goso/pkg/utils"
 	"net/http"
 	"strings"
@@ -46,11 +45,6 @@ func (h *DefaultHandler) Handle(ctx context.Context, req, resp interface{}) erro
 	return h.Func(ctx, req, resp)
 }
 
-// HandlerPrivateData 获取私有数据
-type HandlerPrivateData struct {
-	HTTPMethod string
-}
-
 // GetPrivateData 获取私有数据
 func (h *DefaultHandler) GetPrivateData() interface{} {
 	return &HandlerPrivateData{
@@ -59,13 +53,11 @@ func (h *DefaultHandler) GetPrivateData() interface{} {
 }
 
 // New 默认sogin对象
-func New() (*SoGin, error) {
+func New(ports []int) (*SoGin, error) {
 	router := gin.Default()
 	return &SoGin{
-		Engine: router,
-		NetAttr: &so.NetAttr{
-			Ports: []int{8000},
-		},
+		Ports:            ports,
+		Engine:           router,
 		GetContextFunc:   DefaultGetContextFunc,
 		BeforeHandleFunc: DefaultBeforeHandleFunc,
 		AfterHandleFunc:  DefaultAfterHandleFunc,
