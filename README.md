@@ -18,14 +18,24 @@ go语言服务端框架/工具集，适用于网关、游戏、网页等。
 ![](/docs/jpg/架构.jpg)
 
 # 说明
-- gate 网关服务
-    1. 解析gateHead（不解析logicPack）获取目标服务
-    2. 生成公共字段和gateHead一起添加进ctx中
-    3. 从配置或服务治理中获取服务的地址
-    4. 将ctx和logicPack传递给logic服务
-- logic 逻辑服务
+- gate 网关
+    1. gate-client gate对用户
+        1. client传递gatePack（gateHead+logicPack）
+        2. 解析gateHead（不解析logicPack）获取目标logic
+        3. 从logicProxy中获取logic的地址
+        4. 生成公共字段和gateHead一起添加进ctx中
+        5. 将ctx和logicPack传递给logic服务
+    2. gate-logic gate对逻辑
+        1. 接收logic请求的ctx和logicPack
+        2. 从ctx中获取目标client
+        3. 将logicPack传递给client
+- logic 逻辑
+    1. gate-client传递ctx和logicPack
     1. 解析logicPack
-    2. 将ctx和logicStruct传递给handle
+    2. 将ctx和req传递给handler
+    3. 获取handler的resp
+    4. 从gateProxy中获取gate-logic的地址
+    5. 将ctx和resp传递给gate-logic
 - module&handle 模块和处理器
     1. 业务逻辑的核心组成
     2. 模块是一个功能的抽象
