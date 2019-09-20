@@ -1,13 +1,20 @@
 # goso
 
-go语言服务端框架/工具集。适用于网关、游戏、网页等。
+go语言服务端框架/工具集，适用于网关、游戏、网页等。
+
+# 主要特性
+
+网络、数据、路由和业务（模块和处理器）解耦
+    - 网络：http、websocket、quic
+    - 数据：http-form、json、grpc、自定义二进制
+    - 路由：gin-route、consul
 
 # 整体架构
 
 ## 演化
 ![](/docs/jpg/演化.jpg)
 
-## 架构
+## 
 ![](/docs/jpg/架构.jpg)
 
 # 说明
