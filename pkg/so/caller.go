@@ -1,5 +1,5 @@
 package so
 
-// Caller handler的远程调用封装
+// Caller 远程调用handler的封装
 type Caller interface {
 }
