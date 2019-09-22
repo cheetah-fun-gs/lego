@@ -26,12 +26,12 @@ go语言服务端框架/工具集，适用于网关、游戏、网页等。
 
 ## 三模块
 - gnet 
-    - net + gatePack + proxy
+    - net + gatePack + proxy + caller
 - lnet 
-    - net + logicPack + proxy
-- biz 
-    - handler + proxy
-
+    - net + logicPack + proxy + caller
+- soer 
+    - handler + proxy + caller
+    
 # 注意
 - 【建议】不要用ctx来传参，仅存（打印日志时抓现场用）或仅取（获取框架层保存的固定字段）
 - 【强制】模块间不能共享内存，必须通过处理器相互调用
