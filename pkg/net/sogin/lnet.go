@@ -32,9 +32,11 @@ func lnetParseRequest(c *gin.Context, req interface{}) error {
 // lnetGetContextFunc 默认的获取 ctx 的方法
 func lnetGetContextFunc(c *gin.Context) (context.Context, error) {
 	data := map[string]interface{}{}
-	for _, p := range c.Params {
-		if strings.HasPrefix(p.Key, ContextPrefix) {
-			data[strings.Replace(p.Key, ContextPrefix, "", 1)] = p.Value
+	for key, val := range c.Request.PostForm {
+		if strings.HasPrefix(key, ContextPrefix) {
+			if len(val) == 1 {
+				data[strings.Replace(key, ContextPrefix, "", 1)] = val[0]
+			}
 		}
 	}
 	return utils.LoadContext(data), nil
