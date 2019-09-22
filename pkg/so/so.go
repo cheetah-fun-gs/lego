@@ -1,2 +1,16 @@
-// Package so goso 各接口类型的定义
+// Package so goso 各接口的定义
 package so
+
+import (
+	"fmt"
+)
+
+// Addr 地址
+type Addr struct {
+	IP   string
+	Port int
+}
+
+func (addr *Addr) String() string {
+	return fmt.Sprintf("%s:%d", addr.IP, addr.Port)
+}

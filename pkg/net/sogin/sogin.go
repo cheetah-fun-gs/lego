@@ -39,7 +39,7 @@ func (soGin *SoGin) SetGetContextFunc(getContextFunc func(c *gin.Context) (conte
 }
 
 // Register 注册处理器
-func (soGin *SoGin) Register(handler so.Handler) {
+func (soGin *SoGin) Register(handler so.Handler) error {
 	privateData := handler.GetPrivateData().(*HandlerPrivateData)
 	httpMethod := privateData.HTTPMethod
 
