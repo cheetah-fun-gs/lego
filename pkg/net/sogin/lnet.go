@@ -42,7 +42,7 @@ func lnetGetContextFunc(c *gin.Context) (context.Context, error) {
 	return utils.LoadContext(data), nil
 }
 
-func getLnetHandlerFunc(handler so.Handler) gin.HandlerFunc {
+func lnetGetHandlerFunc(handler so.Handler) gin.HandlerFunc {
 	req := handler.GetReq()
 	resp := handler.GetResp()
 
@@ -101,6 +101,6 @@ func NewLnetGin(ports []int) (*LnetGin, error) {
 	}
 	return &LnetGin{
 		SoGin:          lnet,
-		GetHandlerFunc: getLnetHandlerFunc,
+		GetHandlerFunc: lnetGetHandlerFunc,
 	}, nil
 }

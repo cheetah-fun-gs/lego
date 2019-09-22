@@ -3,87 +3,102 @@ package sogin
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"goso/pkg/so"
+	"goso/pkg/utils"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-// GateHandler gate的sogin的处理器
-type GateHandler struct {
-	Name       string
-	URI        string
-	HTTPMethod string
-	Req        interface{} // 请求结构体指针
-	Resp       interface{} // 响应结构体指针
-	Func       func(ctx context.Context, req, resp interface{}) error
-}
-
-// GetName 获取处理器名称
-func (h *GateHandler) GetName() string {
-	return h.Name
-}
-
-// GetRouter 获取处理器路由
-func (h *GateHandler) GetRouter() string {
-	return h.URI
-}
-
-// GetReq 获取请求结构体
-func (h *GateHandler) GetReq() interface{} {
-	return h.Req
-}
-
-// GetResp 获取响应结构体
-func (h *GateHandler) GetResp() interface{} {
-	return h.Resp
-}
-
-// Handle 处理器方法
-func (h *GateHandler) Handle(ctx context.Context, req, resp interface{}) error {
-	return h.Func(ctx, req, resp)
-}
-
-// GetPrivateData 获取私有数据
-func (h *GateHandler) GetPrivateData() interface{} {
-	return &HandlerPrivateData{
-		HTTPMethod: h.HTTPMethod,
-	}
-}
-
-// NewGate 一个新的gate sogin对象
-func NewGate(ports []int) (*SoGin, error) {
-	soGin, err := New(ports)
-	if err != nil {
-		return nil, err
-	}
-	return soGin, nil
-}
-
-// GateBeforeHandleFunc gate 预处理
-func GateBeforeHandleFunc(c *gin.Context, req interface{}) error {
+// gnetBeforeHandleFunc
+func gnetParseRequest(c *gin.Context, req interface{}) error {
 	rawPack, err := c.GetRawData()
 	if err != nil {
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 可以通过 SetBeforeHandleFunc 替换
+		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil
 	}
 
 	err = json.Unmarshal(rawPack, req)
 	if err != nil {
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 可以通过 SetBeforeHandleFunc 替换
+		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil
 	}
 
 	return nil
 }
 
-// GateAfterHandleFunc gate 结束处理
-func GateAfterHandleFunc(c *gin.Context, resp interface{}) error {
-	c.JSON(http.StatusOK, resp)
+// gnetGetContextFunc 默认的获取 ctx 的方法
+func gnetGetContextFunc(c *gin.Context) (context.Context, error) {
+	data := map[string]interface{}{}
+	for _, p := range c.Params {
+		if strings.HasPrefix(p.Key, ContextPrefix) {
+			data[strings.Replace(p.Key, ContextPrefix, "", 1)] = p.Value
+		}
+	}
+	return utils.LoadContext(data), nil
+}
+
+func gnetGetHandlerFunc(handler so.Handler) gin.HandlerFunc {
+	req := handler.GetReq()
+	resp := handler.GetResp()
+
+	return func(c *gin.Context) {
+		var err error
+		defer func() {
+			if err != nil {
+				c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+				return
+			}
+		}()
+		defer func() {
+			if r := recover(); r != nil {
+				err = fmt.Errorf("%v", r)
+			}
+		}()
+
+		ctx, err := gnetGetContextFunc(c)
+		if err != nil {
+			return
+		}
+		err = gnetParseRequest(c, req)
+		if err != nil {
+			return
+		}
+		err = handler.Func()(ctx, req, resp)
+		if err != nil {
+			return
+		}
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+}
+
+// GnetGin gin 版 gnet
+type GnetGin struct {
+	*SoGin
+	GetHandlerFunc func(handle so.Handler) gin.HandlerFunc // so.HandlerFunc to gin.HandlerFunc
+}
+
+// Register 注册处理器
+func (gnet *GnetGin) Register(handler so.Handler) error {
+	privateData := handler.GetPrivateData().(*HandlerPrivateData)
+	httpMethod := privateData.HTTPMethod
+	uri := privateData.URI
+
+	gnet.Handle(httpMethod, uri, gnet.GetHandlerFunc(handler))
 	return nil
 }
 
-// GateGetContextFunc gate 不从外部获取 context, 自己生产
-func GateGetContextFunc(c *gin.Context) (context.Context, error) {
-	ctx := context.Background() // :TODO
-	return ctx, nil
+// NewgnetGin 一个新的gnet gin 对象
+func NewgnetGin(ports []int) (*GnetGin, error) {
+	gnet, err := New(ports)
+	if err != nil {
+		return nil, err
+	}
+	return &GnetGin{
+		SoGin:          gnet,
+		GetHandlerFunc: gnetGetHandlerFunc,
+	}, nil
 }
