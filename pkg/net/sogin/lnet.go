@@ -3,6 +3,8 @@ package sogin
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"goso/pkg/so"
 	"goso/pkg/utils"
 	"net/http"
 	"strings"
@@ -10,85 +12,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// DefaultHandler 默认的sogin的处理器
-type DefaultHandler struct {
-	Name       string
-	URI        string
-	HTTPMethod string
-	Req        interface{} // 请求结构体指针
-	Resp       interface{} // 响应结构体指针
-	Func       func(ctx context.Context, req, resp interface{}) error
-}
-
-// GetName 获取处理器名称
-func (h *DefaultHandler) GetName() string {
-	return h.Name
-}
-
-// GetRouter 获取处理器路由
-func (h *DefaultHandler) GetRouter() string {
-	return h.URI
-}
-
-// GetReq 获取请求结构体
-func (h *DefaultHandler) GetReq() interface{} {
-	return h.Req
-}
-
-// GetResp 获取响应结构体
-func (h *DefaultHandler) GetResp() interface{} {
-	return h.Resp
-}
-
-// Handle 处理器方法
-func (h *DefaultHandler) Handle(ctx context.Context, req, resp interface{}) error {
-	return h.Func(ctx, req, resp)
-}
-
-// GetPrivateData 获取私有数据
-func (h *DefaultHandler) GetPrivateData() interface{} {
-	return &HandlerPrivateData{
-		HTTPMethod: h.HTTPMethod,
-	}
-}
-
-// New 默认sogin对象
-func New(ports []int) (*SoGin, error) {
-	router := gin.Default()
-	return &SoGin{
-		Ports:            ports,
-		Engine:           router,
-		GetContextFunc:   DefaultGetContextFunc,
-		BeforeHandleFunc: DefaultBeforeHandleFunc,
-		AfterHandleFunc:  DefaultAfterHandleFunc,
-	}, nil
-}
-
-// DefaultBeforeHandleFunc 默认的预处理
-func DefaultBeforeHandleFunc(c *gin.Context, req interface{}) error {
+// lnetBeforeHandleFunc
+func lnetParseRequest(c *gin.Context, req interface{}) error {
 	rawPack, err := c.GetRawData()
 	if err != nil {
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 可以通过 SetBeforeHandleFunc 替换
+		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil
 	}
 
 	err = json.Unmarshal(rawPack, req)
 	if err != nil {
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 可以通过 SetBeforeHandleFunc 替换
+		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil
 	}
 
 	return nil
 }
 
-// DefaultAfterHandleFunc 默认的结束处理
-func DefaultAfterHandleFunc(c *gin.Context, resp interface{}) error {
-	c.JSON(http.StatusOK, resp)
-	return nil
-}
-
-// DefaultGetContextFunc 默认的获取 ctx 的方法
-func DefaultGetContextFunc(c *gin.Context) (context.Context, error) {
+// lnetGetContextFunc 默认的获取 ctx 的方法
+func lnetGetContextFunc(c *gin.Context) (context.Context, error) {
 	data := map[string]interface{}{}
 	for _, p := range c.Params {
 		if strings.HasPrefix(p.Key, ContextPrefix) {
@@ -96,4 +38,67 @@ func DefaultGetContextFunc(c *gin.Context) (context.Context, error) {
 		}
 	}
 	return utils.LoadContext(data), nil
+}
+
+func getLnetHandlerFunc(handler so.Handler) gin.HandlerFunc {
+	req := handler.GetReq()
+	resp := handler.GetResp()
+
+	return func(c *gin.Context) {
+		var err error
+		defer func() {
+			if err != nil {
+				c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+				return
+			}
+		}()
+		defer func() {
+			if r := recover(); r != nil {
+				err = fmt.Errorf("%v", r)
+			}
+		}()
+
+		ctx, err := lnetGetContextFunc(c)
+		if err != nil {
+			return
+		}
+		err = lnetParseRequest(c, req)
+		if err != nil {
+			return
+		}
+		err = handler.Func()(ctx, req, resp)
+		if err != nil {
+			return
+		}
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+}
+
+// LnetGin gin 版 lnet
+type LnetGin struct {
+	*SoGin
+	GetHandlerFunc func(handle so.Handler) gin.HandlerFunc // so.HandlerFunc to gin.HandlerFunc
+}
+
+// Register 注册处理器
+func (lnet *LnetGin) Register(handler so.Handler) error {
+	privateData := handler.GetPrivateData().(*HandlerPrivateData)
+	httpMethod := privateData.HTTPMethod
+	uri := privateData.URI
+
+	lnet.Handle(httpMethod, uri, lnet.GetHandlerFunc(handler))
+	return nil
+}
+
+// NewLnetGin 一个新的lnet gin 对象
+func NewLnetGin(ports []int) (*LnetGin, error) {
+	lnet, err := New(ports)
+	if err != nil {
+		return nil, err
+	}
+	return &LnetGin{
+		SoGin:          lnet,
+		GetHandlerFunc: getLnetHandlerFunc,
+	}, nil
 }
