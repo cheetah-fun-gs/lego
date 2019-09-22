@@ -25,7 +25,7 @@ func (h *Handler) GetName() string {
 }
 
 // GetRouter 获取处理器路由
-func (h *Handler) GetRouter() string {
+func (h *Handler) GetRouter() interface{} {
 	return h.URI
 }
 
