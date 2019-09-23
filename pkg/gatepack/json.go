@@ -10,11 +10,11 @@ import (
 
 // JSONPack  json 格式的 gate 包
 type JSONPack struct {
-	Version int16           `json:"version,omitempty"`
-	GameID  int32           `json:"game_id,omitempty"`
-	CMD     int32           `json:"cmd,omitempty"`
-	Seq     int32           `json:"seq,omitempty"`
-	Data    json.RawMessage `json:"data,omitempty"`
+	Version   int16           `json:"version,omitempty"`
+	GameID    int32           `json:"game_id,omitempty"`
+	CMD       int32           `json:"cmd,omitempty"`
+	Seq       int32           `json:"seq,omitempty"`
+	LogicPack json.RawMessage `json:"logic_pack,omitempty"`
 }
 
 // Verify 校验包的有效性
@@ -29,7 +29,7 @@ func (pack *JSONPack) GetRouter() interface{} {
 
 // GetLogicPack 获取业务对象
 func (pack *JSONPack) GetLogicPack() interface{} {
-	return pack.Data
+	return pack.LogicPack
 }
 
 // GetContext 获取上下文

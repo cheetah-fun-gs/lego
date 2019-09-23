@@ -3,9 +3,7 @@
 // 2. 处理器逻辑尽量简单，复杂逻辑放到模块包中
 package handlers
 
-import (
-	"time"
-)
+import "time"
 
 // CommonReq 公共请求
 type CommonReq struct {
@@ -18,10 +16,11 @@ type CommonReq struct {
 // CommonRespCode 公共返回码
 type CommonRespCode int
 
-// 公共返回码 定义
+// 公共返回码 定义 0 ~ 100 保留, 作为 框架层的返回码
 const (
-	CommonRespCodeSuccess CommonRespCode = 0
-	CommonRespCodeUnknown                = 1
+	CommonRespCodeOK         CommonRespCode = 0
+	CommonRespCodeBadGateway                = 1
+	CommonRespCodeBadRequest                = 2
 )
 
 // CommonResp 公共响应
@@ -31,19 +30,19 @@ type CommonResp struct {
 	Ts   int64          `json:"ts,omitempty"`
 }
 
-// CommonRespUnknown 位置错误返回
-func CommonRespUnknown() *CommonResp {
+// commonRespBadGateway 未知错误返回
+func commonRespBadGateway() *CommonResp {
 	return &CommonResp{
-		Code: CommonRespCodeUnknown,
+		Code: CommonRespCodeBadGateway,
 		Msg:  "unknown",
 		Ts:   time.Now().Unix(),
 	}
 }
 
-// CommonRespSuccess 成功返回
-func CommonRespSuccess() *CommonResp {
+// commonRespOK 成功返回
+func commonRespOK() *CommonResp {
 	return &CommonResp{
-		Code: CommonRespCodeSuccess,
+		Code: CommonRespCodeOK,
 		Msg:  "success",
 		Ts:   time.Now().Unix(),
 	}
