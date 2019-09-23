@@ -11,23 +11,23 @@ func Run() {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
-	gnetSoGin, err := gnet.SoGin()
+	gnetSoHTTP, err := gnet.SoHTTP()
 	if err != nil {
 		panic(err)
 	}
 
 	go func() {
-		gnetSoGin.Start()
+		gnetSoHTTP.Start()
 		wg.Done()
 	}()
 
-	lnetSoGin, err := lnet.SoGin()
+	lnetSoHTTP, err := lnet.SoHTTP()
 	if err != nil {
 		panic(err)
 	}
 
 	go func() {
-		lnetSoGin.Start()
+		lnetSoHTTP.Start()
 		wg.Done()
 	}()
 
