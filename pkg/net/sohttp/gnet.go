@@ -39,17 +39,14 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 		return nil, err
 	}
 
-	if len(gatePack.Data) != 0 {
-		err = json.Unmarshal(gatePack.Data, req)
+	if len(gatePack.LogicPack) != 0 {
+		err = json.Unmarshal(gatePack.LogicPack, req)
 		if err != nil {
 			soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
 			c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 			return nil, err
 		}
 	}
-
-	fmt.Println(gatePack.Data)
-	fmt.Printf("%+v\n", req)
 
 	ctx = gatePack.GetContext()
 	return ctx, nil
