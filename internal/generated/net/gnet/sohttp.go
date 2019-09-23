@@ -1,17 +1,17 @@
-package lnet
+package gnet
 
 import (
 	"context"
 	"goso/internal/biz/handlers"
 	"goso/pkg/handler"
-	"goso/pkg/net/sogin"
+	sohttp "goso/pkg/net/sohttp"
 )
 
 // handler 定义
 var (
 	CommonTimeSoGinHandler = &handler.Handler{
 		Name:    "common.time",
-		Routers: sogin.NewRouters(handlers.CommonTimeURIS, handlers.CommonTimeHTTPMethods),
+		Routers: sohttp.NewRouters(handlers.CommonTimeURIS, handlers.CommonTimeHTTPMethods),
 		Req:     &handlers.CommonTimeReq{},
 		Resp:    &handlers.CommonTimeResp{},
 		Func: func(ctx context.Context, req, resp interface{}) error {
@@ -20,9 +20,9 @@ var (
 	}
 )
 
-// SoGin 获取 gnet sogin 服务
-func SoGin() (*sogin.SoGin, error) {
-	s, err := sogin.NewGnet([]int{8000})
+// SoHTTP 获取 gnet http 服务
+func SoHTTP() (*sohttp.SoHTTP, error) {
+	s, err := sohttp.NewGnet([]int{8080})
 	if err != nil {
 		return nil, err
 	}
