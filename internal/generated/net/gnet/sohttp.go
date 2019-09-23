@@ -19,7 +19,7 @@ var hs = []*handler.Handler{
 		},
 	},
 	&handler.Handler{
-		Name:    "common.test",
+		Name:    "common.post",
 		Routers: sohttp.NewRouters(handlers.CommonPostURIS, handlers.CommonPostHTTPMethods),
 		Req:     &handlers.CommonPostReq{},
 		Resp:    &handlers.CommonPostResp{},

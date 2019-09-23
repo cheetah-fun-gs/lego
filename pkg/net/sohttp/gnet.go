@@ -3,6 +3,7 @@ package sohttp
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"goso/pkg/gatepack"
 	"goso/pkg/so"
 	"goso/pkg/utils"
@@ -21,9 +22,7 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 		return nil, err
 	}
 
-	gatePack := &gatepack.JSONPack{
-		Data: req,
-	}
+	gatePack := &gatepack.JSONPack{}
 	if len(rawPack) != 0 {
 		err = json.Unmarshal(rawPack, gatePack)
 		if err != nil {
@@ -39,6 +38,18 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil, err
 	}
+
+	if len(gatePack.Data) != 0 {
+		err = json.Unmarshal(gatePack.Data, req)
+		if err != nil {
+			soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
+			c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
+			return nil, err
+		}
+	}
+
+	fmt.Println(gatePack.Data)
+	fmt.Printf("%+v\n", req)
 
 	ctx = gatePack.GetContext()
 	return ctx, nil
@@ -76,6 +87,7 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
 			return
 		}
+		fmt.Println(req)
 		err = handler.Handle(ctx, req, resp)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)

@@ -2,6 +2,7 @@ package gatepack
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	uuid "github.com/satori/go.uuid"
@@ -9,11 +10,11 @@ import (
 
 // JSONPack  json 格式的 gate 包
 type JSONPack struct {
-	Version int16       `json:"version,omitempty"`
-	GameID  int32       `json:"game_id,omitempty"`
-	CMD     int32       `json:"cmd,omitempty"`
-	Seq     int32       `json:"seq,omitempty"`
-	Data    interface{} `json:"data,omitempty"`
+	Version int16           `json:"version,omitempty"`
+	GameID  int32           `json:"game_id,omitempty"`
+	CMD     int32           `json:"cmd,omitempty"`
+	Seq     int32           `json:"seq,omitempty"`
+	Data    json.RawMessage `json:"data,omitempty"`
 }
 
 // Verify 校验包的有效性
