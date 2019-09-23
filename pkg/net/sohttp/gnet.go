@@ -13,32 +13,35 @@ import (
 )
 
 // gnetBeforeHandleFunc
-func gnetParseRequest(c *gin.Context) (ctx context.Context, req interface{}, err error) {
+func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err error) {
 	rawPack, err := c.GetRawData()
 	if err != nil {
 		soLogger.Error(context.Background(), "BadRequest GetRawData error: %v", err)
 		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
-		return nil, nil, err
+		return nil, err
 	}
 
-	gatePack := &gatepack.JSONPack{}
-	err = json.Unmarshal(rawPack, gatePack)
-	if err != nil {
-		soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
-		return nil, nil, err
+	gatePack := &gatepack.JSONPack{
+		Data: req,
+	}
+	if len(rawPack) != 0 {
+		err = json.Unmarshal(rawPack, gatePack)
+		if err != nil {
+			soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
+			c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
+			return nil, err
+		}
 	}
 
 	err = gatePack.Verify()
 	if err != nil {
 		soLogger.Error(context.Background(), "BadRequest Verify error: %v", err)
 		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
-		return nil, nil, err
+		return nil, err
 	}
 
 	ctx = gatePack.GetContext()
-	req = gatePack.GetLogicPack()
-	return ctx, req, nil
+	return ctx, nil
 }
 
 // gnetGetContextFunc 默认的获取 ctx 的方法
@@ -53,6 +56,7 @@ func gnetGetContextFunc(c *gin.Context) (context.Context, error) {
 }
 
 func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
+	req := handler.GetReq()
 	resp := handler.GetResp()
 
 	return func(c *gin.Context) {
@@ -66,7 +70,7 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 			}
 		}()
 
-		ctx, req, err := gnetParseRequest(c)
+		ctx, err := gnetParseRequest(c, req)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway gnetParseRequest error: %v", err)
 			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo

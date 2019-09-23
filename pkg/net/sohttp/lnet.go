@@ -20,11 +20,13 @@ func lnetParseRequest(c *gin.Context, req interface{}) error {
 		return err
 	}
 
-	err = json.Unmarshal(rawPack, req)
-	if err != nil {
-		soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
-		return err
+	if len(rawPack) != 0 {
+		err = json.Unmarshal(rawPack, req)
+		if err != nil {
+			soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
+			c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
+			return err
+		}
 	}
 
 	return nil
