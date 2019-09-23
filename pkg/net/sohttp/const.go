@@ -1,4 +1,4 @@
-package sogin
+package sohttp
 
 // 常量
 const (

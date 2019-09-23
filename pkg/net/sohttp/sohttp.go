@@ -1,5 +1,5 @@
-// Package sogin 符合goso net对象的 gin 服务
-package sogin
+// Package sohttp 符合goso net对象的 http 服务
+package sohttp
 
 import (
 	"fmt"
@@ -41,47 +41,47 @@ type Config struct {
 	Ports []int
 }
 
-// SoGin 符合goso net对象的 gin 服务
-type SoGin struct {
+// SoHTTP 符合goso net对象的 http 服务
+type SoHTTP struct {
 	*gin.Engine
 	Config     *Config
 	ConverFunc ConverFunc
 }
 
 // SetConverFunc 设置 ConverFunc
-func (soGin *SoGin) SetConverFunc(converFunc ConverFunc) error {
-	soGin.ConverFunc = converFunc
+func (soHTTP *SoHTTP) SetConverFunc(converFunc ConverFunc) error {
+	soHTTP.ConverFunc = converFunc
 	return nil
 }
 
 // Register 注册处理器
-func (soGin *SoGin) Register(handler so.Handler) error {
+func (soHTTP *SoHTTP) Register(handler so.Handler) error {
 	routers := handler.GetRouter()
 	for _, router := range routers {
 		r := router.(*Router)
-		soGin.Handle(r.HTTPMethod, r.URI, soGin.ConverFunc(handler))
+		soHTTP.Handle(r.HTTPMethod, r.URI, soHTTP.ConverFunc(handler))
 	}
 	return nil
 }
 
 // Start 启动服务
-func (soGin *SoGin) Start() error {
+func (soHTTP *SoHTTP) Start() error {
 	addr := []string{}
-	for _, port := range soGin.Config.Ports {
+	for _, port := range soHTTP.Config.Ports {
 		addr = append(addr, fmt.Sprintf(":%d", port))
 	}
-	return soGin.Run(addr...)
+	return soHTTP.Run(addr...)
 }
 
 // Stop 关闭服务
-func (soGin *SoGin) Stop() error {
-	return soGin.Stop()
+func (soHTTP *SoHTTP) Stop() error {
+	return soHTTP.Stop()
 }
 
-// New 默认sogin对象
-func New(ports []int) (*SoGin, error) {
+// New 默认http对象
+func New(ports []int) (*SoHTTP, error) {
 	router := gin.Default()
-	return &SoGin{
+	return &SoHTTP{
 		Engine: router,
 		Config: &Config{
 			Ports: ports,

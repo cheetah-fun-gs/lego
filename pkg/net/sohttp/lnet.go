@@ -1,4 +1,4 @@
-package sogin
+package sohttp
 
 import (
 	"context"
@@ -79,7 +79,7 @@ func lnetConverFunc(handler so.Handler) gin.HandlerFunc {
 }
 
 // NewLnet 一个新的lnet gin 对象
-func NewLnet(ports []int) (*SoGin, error) {
+func NewLnet(ports []int) (*SoHTTP, error) {
 	lnet, err := New(ports)
 	if err != nil {
 		return nil, err

@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-// Handler sogin的处理器
+// Handler 默认处理器
 type Handler struct {
 	Name    string
 	Routers []interface{} // 路由器

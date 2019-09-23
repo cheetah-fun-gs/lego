@@ -1,4 +1,4 @@
-package sogin
+package sohttp
 
 import (
 	"context"
@@ -82,7 +82,7 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 }
 
 // NewGnet 一个新的gnet gin 对象
-func NewGnet(ports []int) (*SoGin, error) {
+func NewGnet(ports []int) (*SoHTTP, error) {
 	gnet, err := New(ports)
 	if err != nil {
 		return nil, err
