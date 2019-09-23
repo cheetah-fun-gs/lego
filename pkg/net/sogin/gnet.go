@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"goso/pkg/gatepack"
 	"goso/pkg/so"
 	"goso/pkg/utils"
 	"net/http"
@@ -13,20 +14,29 @@ import (
 )
 
 // gnetBeforeHandleFunc
-func gnetParseRequest(c *gin.Context, req interface{}) error {
+func gnetParseRequest(c *gin.Context) (ctx context.Context, req interface{}, err error) {
 	rawPack, err := c.GetRawData()
 	if err != nil {
 		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
-		return nil
+		return nil, nil, err
 	}
 
-	err = json.Unmarshal(rawPack, req)
+	gatePack := &gatepack.JSONPack{}
+	err = json.Unmarshal(rawPack, gatePack)
 	if err != nil {
 		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
-		return nil
+		return nil, nil, err
 	}
 
-	return nil
+	err = gatePack.Verify()
+	if err != nil {
+		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
+		return nil, nil, err
+	}
+
+	ctx = gatePack.GetContext()
+	req = gatePack.GetLogicPack()
+	return ctx, req, nil
 }
 
 // gnetGetContextFunc 默认的获取 ctx 的方法
@@ -40,8 +50,7 @@ func gnetGetContextFunc(c *gin.Context) (context.Context, error) {
 	return utils.LoadContext(data), nil
 }
 
-func gnetGetHandlerFunc(handler so.Handler) gin.HandlerFunc {
-	req := handler.GetReq()
+func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 	resp := handler.GetResp()
 
 	return func(c *gin.Context) {
@@ -58,11 +67,7 @@ func gnetGetHandlerFunc(handler so.Handler) gin.HandlerFunc {
 			}
 		}()
 
-		ctx, err := gnetGetContextFunc(c)
-		if err != nil {
-			return
-		}
-		err = gnetParseRequest(c, req)
+		ctx, req, err := gnetParseRequest(c)
 		if err != nil {
 			return
 		}
@@ -75,30 +80,15 @@ func gnetGetHandlerFunc(handler so.Handler) gin.HandlerFunc {
 	}
 }
 
-// GnetGin gin 版 gnet
-type GnetGin struct {
-	*SoGin
-	GetHandlerFunc func(handle so.Handler) gin.HandlerFunc // so.HandlerFunc to gin.HandlerFunc
-}
-
-// Register 注册处理器
-func (gnet *GnetGin) Register(handler so.Handler) error {
-	privateData := handler.GetPrivateData().(*HandlerPrivateData)
-	httpMethod := privateData.HTTPMethod
-	uri := privateData.URI
-
-	gnet.Handle(httpMethod, uri, gnet.GetHandlerFunc(handler))
-	return nil
-}
-
-// NewgnetGin 一个新的gnet gin 对象
-func NewgnetGin(ports []int) (*GnetGin, error) {
+// NewGnetGin 一个新的gnet gin 对象
+func NewGnetGin(ports []int) (*SoGin, error) {
 	gnet, err := New(ports)
 	if err != nil {
 		return nil, err
 	}
-	return &GnetGin{
-		SoGin:          gnet,
-		GetHandlerFunc: gnetGetHandlerFunc,
-	}, nil
+	err = gnet.SetConverFunc(gnetConverFunc)
+	if err != nil {
+		return nil, err
+	}
+	return gnet, nil
 }
