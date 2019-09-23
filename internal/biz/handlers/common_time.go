@@ -8,8 +8,8 @@ import (
 // 常量定义
 var (
 	CommonTimeNetType     = []so.NetType{so.NetTypeGnet, so.NetTypeLnet} // 在哪些网络注册
-	CommonTimeURIS        = []string{"common/time"}                      // so gin 用
-	CommonTimeHTTPMethods = []string{"POST", "GET"}                      // so gin 用
+	CommonTimeURIS        = []string{"common/time"}                      // http 用
+	CommonTimeHTTPMethods = []string{"POST", "GET"}                      // http 用
 )
 
 // CommonTimeReq 请求

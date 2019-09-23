@@ -3,17 +3,17 @@ package lnet
 import (
 	"context"
 	"goso/internal/biz/handlers"
+	"goso/pkg/handler"
 	"goso/pkg/net/sogin"
 )
 
 // handler 定义
 var (
-	CommonTimeSoGinHandler = &sogin.Handler{
-		Name:        "common.time",
-		URIS:        handlers.CommonTimeURIS,
-		HTTPMethods: handlers.CommonTimeHTTPMethods,
-		Req:         &handlers.CommonTimeReq{},
-		Resp:        &handlers.CommonTimeResp{},
+	CommonTimeSoGinHandler = &handler.Handler{
+		Name:    "common.time",
+		Routers: sogin.NewRouters(handlers.CommonTimeURIS, handlers.CommonTimeHTTPMethods),
+		Req:     &handlers.CommonTimeReq{},
+		Resp:    &handlers.CommonTimeResp{},
 		Func: func(ctx context.Context, req, resp interface{}) error {
 			return handlers.CommonTimeHandle(ctx, req.(*handlers.CommonTimeReq), resp.(*handlers.CommonTimeResp))
 		},

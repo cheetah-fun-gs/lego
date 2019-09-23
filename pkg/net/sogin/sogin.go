@@ -8,6 +8,31 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Router 路由器
+type Router struct {
+	HTTPMethod string
+	URI        string
+}
+
+// String 格式化方法
+func (router *Router) String() string {
+	return fmt.Sprintf("%v-%v", router.HTTPMethod, router.HTTPMethod)
+}
+
+// NewRouters 获取路由
+func NewRouters(uris []string, httpMethods []string) []interface{} {
+	routers := []interface{}{}
+	for _, httpMethod := range httpMethods {
+		for _, uri := range uris {
+			routers = append(routers, &Router{
+				URI:        uri,
+				HTTPMethod: httpMethod,
+			})
+		}
+	}
+	return routers
+}
+
 // ConverFunc so.HandlerFunc to gin.HandlerFunc
 type ConverFunc func(handle so.Handler) gin.HandlerFunc
 
