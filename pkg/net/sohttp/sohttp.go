@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"goso/pkg/logger"
 	"goso/pkg/so"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -84,6 +85,9 @@ func (soHTTP *SoHTTP) Stop() error {
 // New 默认http对象
 func New(ports []int) (*SoHTTP, error) {
 	router := gin.Default()
+	router.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "Welcome to Nginx!")
+	})
 	return &SoHTTP{
 		Engine: router,
 		Config: &Config{
