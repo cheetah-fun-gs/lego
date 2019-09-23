@@ -3,7 +3,6 @@ package sohttp
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"goso/pkg/gatepack"
 	"goso/pkg/so"
 	"goso/pkg/utils"
@@ -17,6 +16,7 @@ import (
 func gnetParseRequest(c *gin.Context) (ctx context.Context, req interface{}, err error) {
 	rawPack, err := c.GetRawData()
 	if err != nil {
+		soLogger.Error(context.Background(), "BadRequest GetRawData error: %v", err)
 		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil, nil, err
 	}
@@ -24,12 +24,14 @@ func gnetParseRequest(c *gin.Context) (ctx context.Context, req interface{}, err
 	gatePack := &gatepack.JSONPack{}
 	err = json.Unmarshal(rawPack, gatePack)
 	if err != nil {
+		soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
 		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil, nil, err
 	}
 
 	err = gatePack.Verify()
 	if err != nil {
+		soLogger.Error(context.Background(), "BadRequest Verify error: %v", err)
 		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil, nil, err
 	}
@@ -54,26 +56,26 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 	resp := handler.GetResp()
 
 	return func(c *gin.Context) {
-		var err error
-		defer func() {
-			if err != nil {
-				c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
-				fmt.Println(err)
-				return
-			}
-		}()
+		ctx := context.Background()
+
 		defer func() {
 			if r := recover(); r != nil {
-				err = fmt.Errorf("%v", r)
+				soLogger.Error(ctx, "BadGateway gnetConverFunc error: %v", r)
+				c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+				return
 			}
 		}()
 
 		ctx, req, err := gnetParseRequest(c)
 		if err != nil {
+			soLogger.Error(ctx, "BadGateway gnetParseRequest error: %v", err)
+			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
 			return
 		}
 		err = handler.Handle(ctx, req, resp)
 		if err != nil {
+			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)
+			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
 			return
 		}
 		c.JSON(http.StatusOK, resp)

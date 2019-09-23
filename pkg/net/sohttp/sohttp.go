@@ -3,10 +3,13 @@ package sohttp
 
 import (
 	"fmt"
+	"goso/pkg/logger"
 	"goso/pkg/so"
 
 	"github.com/gin-gonic/gin"
 )
+
+var soLogger = logger.New()
 
 // Router 路由器
 type Router struct {
