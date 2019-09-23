@@ -11,7 +11,7 @@ var (
 	CommonTimeSoGinHandler = &sogin.Handler{
 		Name:        "common.time",
 		URIS:        handlers.CommonTimeURIS,
-		HTTPMethods: handlers.CommonTimeURIS,
+		HTTPMethods: handlers.CommonTimeHTTPMethods,
 		Req:         &handlers.CommonTimeReq{},
 		Resp:        &handlers.CommonTimeResp{},
 		Func: func(ctx context.Context, req, resp interface{}) error {
