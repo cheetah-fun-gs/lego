@@ -1,22 +1,31 @@
 package handlers
 
-import "context"
+import (
+	"context"
+	"goso/pkg/so"
+)
+
+// 常量定义
+var (
+	CommonTimeNetType     = []so.NetType{so.NetTypeGnet, so.NetTypeLnet} // 在哪些网络注册
+	CommonTimeURIS        = []string{"common/time"}                      // so gin 用
+	CommonTimeHTTPMethods = []string{"POST", "GET"}                      // so gin 用
+)
 
 // CommonTimeReq 请求
 type CommonTimeReq struct {
+	Common *CommonReq `json:"common,omitempty"`
 }
 
 // CommonTimeResp 响应
 type CommonTimeResp struct {
+	Common *CommonResp `json:"common,omitempty"`
 }
 
-// 常量定义
-const (
-	CommonTimeURI        = "common/time"
-	CommonTimeHTTPMethod = "POST"
-)
-
-// CommonTime 获取服务器时间
-func CommonTime(ctx context.Context, req *CommonTimeReq, resp *CommonTimeResp) error {
+// CommonTimeHandle 获取服务器时间
+func CommonTimeHandle(ctx context.Context, req *CommonTimeReq, resp *CommonTimeResp) error {
+	resp = &CommonTimeResp{
+		Common: CommonRespSuccess(),
+	}
 	return nil
 }

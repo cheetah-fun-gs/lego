@@ -4,27 +4,47 @@
 package handlers
 
 import (
-	"encoding/json"
+	"time"
 )
 
-// ReqBody 请求结构体
-type ReqBody struct {
-	Common ReqCommon       `json:"common,omitempty"`
-	Data   json.RawMessage `json:"data,omitempty"`
-}
-
-// ReqCommon 公共请求
-type ReqCommon struct {
+// CommonReq 公共请求
+type CommonReq struct {
 	Version  string `json:"version,omitempty"`
 	Token    string `json:"token,omitempty"`
 	Username string `json:"username,omitempty"`
 	Ts       int64  `json:"ts,omitempty"`
 }
 
-// RespBody 响应结构体
-type RespBody struct {
-	Code int         `json:"code,omitempty"`
-	Msg  string      `json:"msg,omitempty"`
-	Ts   int64       `json:"ts,omitempty"`
-	Data interface{} `json:"data,omitempty"`
+// CommonRespCode 公共返回码
+type CommonRespCode int
+
+// 公共返回码 定义
+const (
+	CommonRespCodeSuccess CommonRespCode = 0
+	CommonRespCodeUnknown                = 1
+)
+
+// CommonResp 公共响应
+type CommonResp struct {
+	Code CommonRespCode `json:"code,omitempty"`
+	Msg  string         `json:"msg,omitempty"`
+	Ts   int64          `json:"ts,omitempty"`
+}
+
+// CommonRespUnknown 位置错误返回
+func CommonRespUnknown() *CommonResp {
+	return &CommonResp{
+		Code: CommonRespCodeUnknown,
+		Msg:  "unknown",
+		Ts:   time.Now().Unix(),
+	}
+}
+
+// CommonRespSuccess 成功返回
+func CommonRespSuccess() *CommonResp {
+	return &CommonResp{
+		Code: CommonRespCodeSuccess,
+		Msg:  "success",
+		Ts:   time.Now().Unix(),
+	}
 }

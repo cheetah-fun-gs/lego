@@ -14,3 +14,12 @@ type Addr struct {
 func (addr *Addr) String() string {
 	return fmt.Sprintf("%s:%d", addr.IP, addr.Port)
 }
+
+// NetType 网络类型
+type NetType int
+
+// 网络类型
+const (
+	NetTypeGnet NetType = iota
+	NetTypeLnet
+)
