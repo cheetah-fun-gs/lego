@@ -58,6 +58,7 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 		defer func() {
 			if err != nil {
 				c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+				fmt.Println(err)
 				return
 			}
 		}()
