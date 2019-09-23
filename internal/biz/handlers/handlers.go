@@ -26,7 +26,7 @@ const (
 
 // CommonResp 公共响应
 type CommonResp struct {
-	Code CommonRespCode `json:"code,omitempty"`
+	Code CommonRespCode `json:"code"`
 	Msg  string         `json:"msg,omitempty"`
 	Ts   int64          `json:"ts,omitempty"`
 }
