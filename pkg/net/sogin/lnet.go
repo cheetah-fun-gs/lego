@@ -68,7 +68,7 @@ func lnetConverFunc(handler so.Handler) gin.HandlerFunc {
 		if err != nil {
 			return
 		}
-		err = handler.Func()(ctx, req, resp)
+		err = handler.Handle(ctx, req, resp)
 		if err != nil {
 			return
 		}
@@ -77,8 +77,8 @@ func lnetConverFunc(handler so.Handler) gin.HandlerFunc {
 	}
 }
 
-// NewLnetGin 一个新的lnet gin 对象
-func NewLnetGin(ports []int) (*SoGin, error) {
+// NewLnet 一个新的lnet gin 对象
+func NewLnet(ports []int) (*SoGin, error) {
 	lnet, err := New(ports)
 	if err != nil {
 		return nil, err

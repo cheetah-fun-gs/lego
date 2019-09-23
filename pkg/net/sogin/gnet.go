@@ -71,7 +71,7 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 		if err != nil {
 			return
 		}
-		err = handler.Func()(ctx, req, resp)
+		err = handler.Handle(ctx, req, resp)
 		if err != nil {
 			return
 		}
@@ -80,8 +80,8 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 	}
 }
 
-// NewGnetGin 一个新的gnet gin 对象
-func NewGnetGin(ports []int) (*SoGin, error) {
+// NewGnet 一个新的gnet gin 对象
+func NewGnet(ports []int) (*SoGin, error) {
 	gnet, err := New(ports)
 	if err != nil {
 		return nil, err
