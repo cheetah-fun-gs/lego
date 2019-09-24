@@ -12,6 +12,18 @@ import (
 
 var soLogger = logger.New()
 
+func errorHandle(c *gin.Context, config *Config, code int, err error) {
+	if config.HTTPCodeFunc == nil {
+		// 未定义 http code 的处理回调, 直接使用 http 错误码, 不建议
+		c.Status(code)
+		return
+	}
+
+	// http code 的处理回调
+	c.JSON(http.StatusOK, config.HTTPCodeFunc(code, err))
+	return
+}
+
 // Router 路由器
 type Router struct {
 	HTTPMethod string
@@ -38,11 +50,12 @@ func NewRouters(uris []string, httpMethods []string) []interface{} {
 }
 
 // ConverFunc so.HandlerFunc to gin.HandlerFunc
-type ConverFunc func(handle so.Handler) gin.HandlerFunc
+type ConverFunc func(config *Config, handle so.Handler) gin.HandlerFunc
 
 // Config 配置
 type Config struct {
-	Ports []int
+	Ports        []int
+	HTTPCodeFunc func(code int, err error) interface{} // 对 http 错误码的处理, BadRequest 和 BadGateway
 }
 
 // SoHTTP 符合goso net对象的 http 服务
@@ -58,12 +71,18 @@ func (soHTTP *SoHTTP) SetConverFunc(converFunc ConverFunc) error {
 	return nil
 }
 
+// SetConfig 设置 Config
+func (soHTTP *SoHTTP) SetConfig(config *Config) error {
+	soHTTP.Config = config
+	return nil
+}
+
 // Register 注册处理器
 func (soHTTP *SoHTTP) Register(handler so.Handler) error {
 	routers := handler.GetRouter()
 	for _, router := range routers {
 		r := router.(*Router)
-		soHTTP.Handle(r.HTTPMethod, r.URI, soHTTP.ConverFunc(handler))
+		soHTTP.Handle(r.HTTPMethod, r.URI, soHTTP.ConverFunc(soHTTP.Config, handler))
 	}
 	return nil
 }
@@ -83,15 +102,13 @@ func (soHTTP *SoHTTP) Stop() error {
 }
 
 // New 默认http对象
-func New(ports []int) (*SoHTTP, error) {
+func New() (*SoHTTP, error) {
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Welcome to Nginx!")
 	})
 	return &SoHTTP{
 		Engine: router,
-		Config: &Config{
-			Ports: ports,
-		},
+		Config: &Config{},
 	}, nil
 }

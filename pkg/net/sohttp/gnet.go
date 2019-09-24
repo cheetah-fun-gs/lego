@@ -18,7 +18,6 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 	rawPack, err := c.GetRawData()
 	if err != nil {
 		soLogger.Error(context.Background(), "BadRequest GetRawData error: %v", err)
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil, err
 	}
 
@@ -27,7 +26,6 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 		err = json.Unmarshal(rawPack, gatePack)
 		if err != nil {
 			soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
-			c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 			return nil, err
 		}
 	}
@@ -35,7 +33,6 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 	err = gatePack.Verify()
 	if err != nil {
 		soLogger.Error(context.Background(), "BadRequest Verify error: %v", err)
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return nil, err
 	}
 
@@ -43,7 +40,6 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 		err = json.Unmarshal(gatePack.LogicPack, req)
 		if err != nil {
 			soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
-			c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 			return nil, err
 		}
 	}
@@ -63,7 +59,7 @@ func gnetGetContextFunc(c *gin.Context) (context.Context, error) {
 	return utils.LoadContext(data), nil
 }
 
-func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
+func gnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 	req := handler.GetReq()
 	resp := handler.GetResp()
 
@@ -73,7 +69,7 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 		defer func() {
 			if r := recover(); r != nil {
 				soLogger.Error(ctx, "BadGateway gnetConverFunc error: %v", r)
-				c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+				errorHandle(c, config, http.StatusBadGateway, fmt.Errorf("%v", r))
 				return
 			}
 		}()
@@ -81,14 +77,14 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 		ctx, err := gnetParseRequest(c, req)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway gnetParseRequest error: %v", err)
-			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+			errorHandle(c, config, http.StatusBadRequest, err)
 			return
 		}
 		fmt.Println(req)
 		err = handler.Handle(ctx, req, resp)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)
-			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+			errorHandle(c, config, http.StatusBadGateway, err)
 			return
 		}
 		c.JSON(http.StatusOK, resp)
@@ -97,8 +93,8 @@ func gnetConverFunc(handler so.Handler) gin.HandlerFunc {
 }
 
 // NewGnet 一个新的gnet gin 对象
-func NewGnet(ports []int) (*SoHTTP, error) {
-	gnet, err := New(ports)
+func NewGnet() (*SoHTTP, error) {
+	gnet, err := New()
 	if err != nil {
 		return nil, err
 	}

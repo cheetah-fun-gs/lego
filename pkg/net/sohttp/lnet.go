@@ -3,6 +3,7 @@ package sohttp
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"goso/pkg/so"
 	"goso/pkg/utils"
 	"net/http"
@@ -16,19 +17,15 @@ func lnetParseRequest(c *gin.Context, req interface{}) error {
 	rawPack, err := c.GetRawData()
 	if err != nil {
 		soLogger.Error(context.Background(), "BadRequest GetRawData error: %v", err)
-		c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 		return err
 	}
-
 	if len(rawPack) != 0 {
 		err = json.Unmarshal(rawPack, req)
 		if err != nil {
 			soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
-			c.Status(http.StatusBadRequest) // 不建议使用 http code, 这是一个demo
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -45,7 +42,7 @@ func lnetGetContextFunc(c *gin.Context) (context.Context, error) {
 	return utils.LoadContext(data), nil
 }
 
-func lnetConverFunc(handler so.Handler) gin.HandlerFunc {
+func lnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 	req := handler.GetReq()
 	resp := handler.GetResp()
 
@@ -55,7 +52,7 @@ func lnetConverFunc(handler so.Handler) gin.HandlerFunc {
 		defer func() {
 			if r := recover(); r != nil {
 				soLogger.Error(ctx, "BadGateway lnetConverFunc error: %v", r)
-				c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+				errorHandle(c, config, http.StatusBadGateway, fmt.Errorf("%v", r))
 				return
 			}
 		}()
@@ -63,19 +60,21 @@ func lnetConverFunc(handler so.Handler) gin.HandlerFunc {
 		ctx, err := lnetGetContextFunc(c)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway lnetGetContextFunc error: %v", err)
-			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+			errorHandle(c, config, http.StatusBadGateway, err)
 			return
 		}
+
 		err = lnetParseRequest(c, req)
 		if err != nil {
-			soLogger.Error(ctx, "BadGateway lnetParseRequest error: %v", err)
-			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+			soLogger.Error(ctx, "BadRequest lnetParseRequest error: %v", err)
+			errorHandle(c, config, http.StatusBadRequest, err)
 			return
 		}
+
 		err = handler.Handle(ctx, req, resp)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)
-			c.Status(http.StatusBadGateway) // 不建议使用 http code, 这是一个demo
+			errorHandle(c, config, http.StatusBadGateway, err)
 			return
 		}
 		c.JSON(http.StatusOK, resp)
@@ -84,8 +83,8 @@ func lnetConverFunc(handler so.Handler) gin.HandlerFunc {
 }
 
 // NewLnet 一个新的lnet gin 对象
-func NewLnet(ports []int) (*SoHTTP, error) {
-	lnet, err := New(ports)
+func NewLnet() (*SoHTTP, error) {
+	lnet, err := New()
 	if err != nil {
 		return nil, err
 	}
