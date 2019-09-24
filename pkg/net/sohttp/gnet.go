@@ -80,7 +80,7 @@ func gnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 			errorHandle(c, config, http.StatusBadRequest, err)
 			return
 		}
-		fmt.Println(req)
+
 		err = handler.Handle(ctx, req, resp)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)

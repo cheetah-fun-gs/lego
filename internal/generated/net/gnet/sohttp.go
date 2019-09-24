@@ -35,12 +35,14 @@ func SoHTTP() (*sohttp.SoHTTP, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, h := range hs {
-		s.Register(h)
-	}
+	// 先设置 config
 	s.SetConfig(&sohttp.Config{
 		Ports:        []int{8080},
 		HTTPCodeFunc: handlers.HandleCommonRespSoHTTP,
 	})
+	// 再注册 handler
+	for _, h := range hs {
+		s.Register(h)
+	}
 	return s, nil
 }

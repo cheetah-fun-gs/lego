@@ -63,7 +63,6 @@ func lnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 			errorHandle(c, config, http.StatusBadGateway, err)
 			return
 		}
-
 		err = lnetParseRequest(c, req)
 		if err != nil {
 			soLogger.Error(ctx, "BadRequest lnetParseRequest error: %v", err)
@@ -72,6 +71,7 @@ func lnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 		}
 
 		err = handler.Handle(ctx, req, resp)
+
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)
 			errorHandle(c, config, http.StatusBadGateway, err)
