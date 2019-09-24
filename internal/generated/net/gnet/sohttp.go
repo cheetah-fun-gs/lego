@@ -31,12 +31,16 @@ var hs = []*handler.Handler{
 
 // SoHTTP 获取 gnet http 服务
 func SoHTTP() (*sohttp.SoHTTP, error) {
-	s, err := sohttp.NewGnet([]int{8080})
+	s, err := sohttp.NewGnet()
 	if err != nil {
 		return nil, err
 	}
 	for _, h := range hs {
 		s.Register(h)
 	}
+	s.SetConfig(&sohttp.Config{
+		Ports:        []int{8080},
+		HTTPCodeFunc: handlers.HandleCommonRespSoHTTP,
+	})
 	return s, nil
 }

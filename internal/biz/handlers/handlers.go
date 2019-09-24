@@ -3,7 +3,11 @@
 // 2. 处理器逻辑尽量简单，复杂逻辑放到模块包中
 package handlers
 
-import "time"
+import (
+	"fmt"
+	"net/http"
+	"time"
+)
 
 // CommonReq 公共请求
 type CommonReq struct {
@@ -18,9 +22,9 @@ type CommonRespCode int
 
 // 公共返回码 定义 0 ~ 100 保留, 作为 框架层的返回码
 const (
-	CommonRespCodeOK         CommonRespCode = 0
-	CommonRespCodeBadGateway                = 1
-	CommonRespCodeBadRequest                = 2
+	CommonRespCodeSuccess       CommonRespCode = 0
+	CommonRespCodeServerUnknown                = 1 // 服务端未知错误 BadGateway
+	CommonRespCodeClientUnknown                = 2 // 客户端未知错误 BadRequest
 )
 
 // CommonResp 公共响应
@@ -30,20 +34,35 @@ type CommonResp struct {
 	Ts   int64          `json:"ts,omitempty"`
 }
 
-// commonRespBadGateway 未知错误返回
-func commonRespBadGateway() *CommonResp {
+// getCommonRespUnknown 未知错误返回
+func getCommonRespUnknown(code CommonRespCode, err error) *CommonResp {
 	return &CommonResp{
-		Code: CommonRespCodeBadGateway,
-		Msg:  "unknown",
+		Code: code,
+		Msg:  fmt.Sprintf("%v", err),
 		Ts:   time.Now().Unix(),
 	}
 }
 
-// commonRespOK 成功返回
-func commonRespOK() *CommonResp {
+// getcommonRespSuccess 成功返回
+func getcommonRespSuccess() *CommonResp {
 	return &CommonResp{
-		Code: CommonRespCodeOK,
+		Code: CommonRespCodeSuccess,
 		Msg:  "success",
 		Ts:   time.Now().Unix(),
+	}
+}
+
+// getCommonRespServerUnknown 服务端未知错误
+func getCommonRespServerUnknown(err error) *CommonResp {
+	return getCommonRespUnknown(CommonRespCodeServerUnknown, err)
+}
+
+// HandleCommonRespSoHTTP 框架层错误处理
+func HandleCommonRespSoHTTP(code int, err error) interface{} {
+	switch code {
+	case http.StatusBadRequest:
+		return getCommonRespUnknown(CommonRespCodeClientUnknown, err)
+	default:
+		return getCommonRespUnknown(CommonRespCodeServerUnknown, err)
 	}
 }

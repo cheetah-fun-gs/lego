@@ -32,7 +32,7 @@ type CommonPostResp struct {
 
 // CommonPostHandle 获取服务器时间
 func CommonPostHandle(ctx context.Context, req *CommonPostReq, resp *CommonPostResp) error {
-	resp.Common = commonRespOK()
+	resp.Common = getcommonRespSuccess()
 	resp.Data = req.Data
 	return nil
 }

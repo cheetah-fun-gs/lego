@@ -24,6 +24,6 @@ type CommonTimeResp struct {
 
 // CommonTimeHandle 获取服务器时间
 func CommonTimeHandle(ctx context.Context, req *CommonTimeReq, resp *CommonTimeResp) error {
-	resp.Common = commonRespOK()
+	resp.Common = getcommonRespSuccess()
 	return nil
 }
