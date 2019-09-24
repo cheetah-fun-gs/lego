@@ -7,8 +7,8 @@ import (
 	"github.com/cheetah-fun-gs/goso/internal/generated/net/lnet"
 )
 
-// Run 主函数
-func main() {
+// Execute 主函数
+func Execute() {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
