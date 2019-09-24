@@ -1,4 +1,4 @@
-module goso
+module github.com/cheetah-fun-gs/goso
 
 go 1.13
 

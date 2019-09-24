@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"goso/internal/generated/net/gnet"
-	"goso/internal/generated/net/lnet"
+	"github.com/cheetah-fun-gs/goso/internal/generated/net/gnet"
+	"github.com/cheetah-fun-gs/goso/internal/generated/net/lnet"
 	"sync"
 )
 

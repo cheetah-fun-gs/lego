@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"goso/pkg/gatepack"
-	"goso/pkg/so"
-	"goso/pkg/utils"
+	"github.com/cheetah-fun-gs/goso/pkg/gatepack"
+	"github.com/cheetah-fun-gs/goso/pkg/so"
+	"github.com/cheetah-fun-gs/goso/pkg/utils"
 	"net/http"
 	"strings"
 

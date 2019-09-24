@@ -2,9 +2,9 @@ package gnet
 
 import (
 	"context"
-	"goso/internal/biz/handlers"
-	"goso/pkg/handler"
-	sohttp "goso/pkg/net/sohttp"
+	"github.com/cheetah-fun-gs/goso/internal/biz/handlers"
+	"github.com/cheetah-fun-gs/goso/pkg/handler"
+	sohttp "github.com/cheetah-fun-gs/goso/pkg/net/sohttp"
 )
 
 // handler 定义

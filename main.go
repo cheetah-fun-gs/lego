@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goso/cmd"
+	"github.com/cheetah-fun-gs/goso/cmd"
 )
 
 func main() {

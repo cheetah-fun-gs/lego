@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"goso/pkg/so"
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
 // 常量定义

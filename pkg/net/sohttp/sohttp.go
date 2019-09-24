@@ -3,8 +3,8 @@ package sohttp
 
 import (
 	"fmt"
-	"goso/pkg/logger"
-	"goso/pkg/so"
+	"github.com/cheetah-fun-gs/goso/pkg/logger"
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

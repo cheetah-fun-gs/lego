@@ -2,7 +2,7 @@ package logger
 
 import (
 	"context"
-	"goso/pkg/so"
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 	"log"
 )
 
