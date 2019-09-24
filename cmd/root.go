@@ -1,13 +1,14 @@
 package cmd
 
 import (
+	"sync"
+
 	"github.com/cheetah-fun-gs/goso/internal/generated/net/gnet"
 	"github.com/cheetah-fun-gs/goso/internal/generated/net/lnet"
-	"sync"
 )
 
-// Run 主函数
-func Run() {
+// Execute 主函数
+func Execute() {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
