@@ -2,14 +2,15 @@ package handlers
 
 import (
 	"context"
+
 	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
 // 常量定义
 var (
-	CommonPostNetType     = []so.NetType{so.NetTypeGnet, so.NetTypeLnet} // 在哪些网络注册
-	CommonPostURIS        = []string{"common/post"}                      // http 用
-	CommonPostHTTPMethods = []string{"POST"}                             // http 用
+	CommonPostNetType     = []so.NetType{so.NetTypeNNet, so.NetTypeGNet, so.NetTypeLNet} // 在哪些网络注册
+	CommonPostURIS        = []string{"common/post"}                                      // http 用
+	CommonPostHTTPMethods = []string{"POST"}                                             // http 用
 )
 
 // TestData 测试数据

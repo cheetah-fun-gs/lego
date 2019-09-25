@@ -5,8 +5,9 @@ package handlers
 
 import (
 	"fmt"
-	"net/http"
 	"time"
+
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
 // CommonReq 公共请求
@@ -57,10 +58,10 @@ func getCommonRespServerUnknown(err error) *CommonResp {
 	return getCommonRespUnknown(CommonRespCodeServerUnknown, err)
 }
 
-// HandleCommonRespSoHTTP 框架层错误处理
-func HandleCommonRespSoHTTP(code int, err error) interface{} {
+// HandleCommonRespSoNet 框架层错误处理
+func HandleCommonRespSoNet(code so.ErrorNetCode, err error) interface{} {
 	switch code {
-	case http.StatusBadRequest:
+	case so.ErrorNetCodeBadRequest:
 		return getCommonRespUnknown(CommonRespCodeClientUnknown, err)
 	default:
 		return getCommonRespUnknown(CommonRespCodeServerUnknown, err)

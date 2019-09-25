@@ -1,4 +1,4 @@
-package gnet
+package lnet
 
 import (
 	"context"
@@ -34,7 +34,7 @@ var hs = []*handler.Handler{
 
 // SoHTTP 获取 gnet http 服务
 func SoHTTP() (*sohttp.SoHTTP, error) {
-	s, err := sohttp.NewGNet()
+	s, err := sohttp.NewLnet()
 	if err != nil {
 		return nil, err
 	}
@@ -46,9 +46,9 @@ func SoHTTP() (*sohttp.SoHTTP, error) {
 
 	// 先设置 config
 	s.SetConfig(&sohttp.Config{
-		Ports: []int{8080},
+		Ports:        []int{8000},
+		HTTPCodeFunc: handlers.HandleCommonRespSoHTTP,
 	})
-	s.SetHTTPCodeFunc(handlers.HandleCommonRespSoHTTP)
 	// 再注册 handler
 	for _, h := range hs {
 		s.Register(h)

@@ -45,14 +45,18 @@ func NewRouters(uris []string, httpMethods []string) []interface{} {
 }
 
 func errorHandle(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, code int, err error) {
-	if soHTTP.HTTPCodeFunc == nil {
+	if soHTTP.ErrorNetFunc == nil {
 		// 未定义 http code 的处理回调, 直接使用 http 错误码, 不建议
 		c.Status(code)
 		return
 	}
 
+	var errCode so.ErrorNetCode
+	if code == http.StatusBadRequest {
+		errCode = so.ErrorNetCodeBadRequest
+	}
 	// http code 的处理回调
-	c.JSON(http.StatusOK, soHTTP.HTTPCodeFunc(ctx, soHTTP, code, err))
+	c.JSON(http.StatusOK, soHTTP.ErrorNetFunc(errCode, err))
 	return
 }
 
@@ -65,8 +69,8 @@ type Config struct {
 type SoHTTP struct {
 	*gin.Engine
 	Config        *Config
-	GatePack      so.GatePack                                                                // gnet 用到
-	HTTPCodeFunc  func(ctx context.Context, soHTTP *SoHTTP, code int, err error) interface{} // 对 http 错误码的处理, BadRequest 和 BadGateway
+	GatePack      so.GatePack                                       // gnet 用到
+	ErrorNetFunc  func(code so.ErrorNetCode, err error) interface{} // 对 http 错误码的处理, BadRequest 和 BadGateway
 	UnmarshalFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, error)
 	MarshalFunc   func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) error
 	ConverFunc    func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc // so.HandlerFunc to gin.HandlerFunc
@@ -81,12 +85,6 @@ func (soHTTP *SoHTTP) SetConfig(config *Config) error {
 // SetGatePack 设置包对象
 func (soHTTP *SoHTTP) SetGatePack(gatePack so.GatePack) error {
 	soHTTP.GatePack = gatePack
-	return nil
-}
-
-// SetHTTPCodeFunc 设置 HTTPCodeFunc
-func (soHTTP *SoHTTP) SetHTTPCodeFunc(httpCodeFunc func(ctx context.Context, soHTTP *SoHTTP, code int, err error) interface{}) error {
-	soHTTP.HTTPCodeFunc = httpCodeFunc
 	return nil
 }
 
@@ -105,6 +103,12 @@ func (soHTTP *SoHTTP) SetMarshalFunc(marshalFunc func(ctx context.Context, soHTT
 // SetConverFunc 设置 ConverFunc
 func (soHTTP *SoHTTP) SetConverFunc(converFunc func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc) error {
 	soHTTP.ConverFunc = converFunc
+	return nil
+}
+
+// SetErrorNetFunc 设置框架层错误处理
+func (soHTTP *SoHTTP) SetErrorNetFunc(errFunc func(code so.ErrorNetCode, err error) interface{}) error {
+	soHTTP.ErrorNetFunc = errFunc
 	return nil
 }
 
