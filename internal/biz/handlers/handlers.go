@@ -35,8 +35,8 @@ type CommonResp struct {
 	Ts   int64          `json:"ts,omitempty"`
 }
 
-// getCommonRespUnknown 未知错误返回
-func getCommonRespUnknown(code CommonRespCode, err error) *CommonResp {
+// GetCommonRespUnknown 未知错误返回
+func GetCommonRespUnknown(code CommonRespCode, err error) *CommonResp {
 	return &CommonResp{
 		Code: code,
 		Msg:  fmt.Sprintf("%v", err),
@@ -44,8 +44,8 @@ func getCommonRespUnknown(code CommonRespCode, err error) *CommonResp {
 	}
 }
 
-// getcommonRespSuccess 成功返回
-func getcommonRespSuccess() *CommonResp {
+// GetcommonRespSuccess 成功返回
+func GetcommonRespSuccess() *CommonResp {
 	return &CommonResp{
 		Code: CommonRespCodeSuccess,
 		Msg:  "success",
@@ -53,17 +53,17 @@ func getcommonRespSuccess() *CommonResp {
 	}
 }
 
-// getCommonRespServerUnknown 服务端未知错误
+// GetCommonRespServerUnknown 服务端未知错误
 func getCommonRespServerUnknown(err error) *CommonResp {
-	return getCommonRespUnknown(CommonRespCodeServerUnknown, err)
+	return GetCommonRespUnknown(CommonRespCodeServerUnknown, err)
 }
 
 // HandleCommonRespSoNet 框架层错误处理
 func HandleCommonRespSoNet(code so.ErrorNetCode, err error) interface{} {
 	switch code {
 	case so.ErrorNetCodeBadRequest:
-		return getCommonRespUnknown(CommonRespCodeClientUnknown, err)
+		return GetCommonRespUnknown(CommonRespCodeClientUnknown, err)
 	default:
-		return getCommonRespUnknown(CommonRespCodeServerUnknown, err)
+		return GetCommonRespUnknown(CommonRespCodeServerUnknown, err)
 	}
 }

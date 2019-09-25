@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cheetah-fun-gs/goso/internal/biz/handlers"
+	handlerscommon "github.com/cheetah-fun-gs/goso/internal/biz/handlers/common"
 	"github.com/cheetah-fun-gs/goso/pkg/handler"
 	sohttp "github.com/cheetah-fun-gs/goso/pkg/net/sohttp"
 	"github.com/gin-gonic/gin"
@@ -13,21 +14,21 @@ import (
 // handler 定义
 var hs = []*handler.Handler{
 	&handler.Handler{
-		Name:    "common.time",
-		Routers: sohttp.NewRouters(handlers.CommonTimeURIS, handlers.CommonTimeHTTPMethods),
-		Req:     &handlers.CommonTimeReq{},
-		Resp:    &handlers.CommonTimeResp{},
+		Name:    "CommonPing",
+		Routers: sohttp.NewRouters(handlerscommon.PingURIS, handlerscommon.PingHTTPMethods),
+		Req:     &handlerscommon.PingReq{},
+		Resp:    &handlerscommon.PingResp{},
 		Func: func(ctx context.Context, req, resp interface{}) error {
-			return handlers.CommonTimeHandle(ctx, req.(*handlers.CommonTimeReq), resp.(*handlers.CommonTimeResp))
+			return handlerscommon.PingHandle(ctx, req.(*handlerscommon.PingReq), resp.(*handlerscommon.PingResp))
 		},
 	},
 	&handler.Handler{
-		Name:    "common.post",
-		Routers: sohttp.NewRouters(handlers.CommonPostURIS, handlers.CommonPostHTTPMethods),
-		Req:     &handlers.CommonPostReq{},
-		Resp:    &handlers.CommonPostResp{},
+		Name:    "CommonPost",
+		Routers: sohttp.NewRouters(handlerscommon.PostURIS, handlerscommon.PostHTTPMethods),
+		Req:     &handlerscommon.PostReq{},
+		Resp:    &handlerscommon.PostResp{},
 		Func: func(ctx context.Context, req, resp interface{}) error {
-			return handlers.CommonPostHandle(ctx, req.(*handlers.CommonPostReq), resp.(*handlers.CommonPostResp))
+			return handlerscommon.PostHandle(ctx, req.(*handlerscommon.PostReq), resp.(*handlerscommon.PostResp))
 		},
 	},
 }
