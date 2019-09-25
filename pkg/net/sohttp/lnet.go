@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cheetah-fun-gs/goso/pkg/so"
-	"github.com/cheetah-fun-gs/goso/pkg/utils"
 	"net/http"
 	"strings"
 
+	"github.com/cheetah-fun-gs/goso/pkg/so"
+	"github.com/cheetah-fun-gs/goso/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,7 +42,7 @@ func lnetGetContextFunc(c *gin.Context) (context.Context, error) {
 	return utils.LoadContext(data), nil
 }
 
-func lnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
+func lnetConverFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc {
 	req := handler.GetReq()
 	resp := handler.GetResp()
 
@@ -52,7 +52,7 @@ func lnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 		defer func() {
 			if r := recover(); r != nil {
 				soLogger.Error(ctx, "BadGateway lnetConverFunc error: %v", r)
-				errorHandle(c, config, http.StatusBadGateway, fmt.Errorf("%v", r))
+				errorHandle(c, soHTTP, http.StatusBadGateway, fmt.Errorf("%v", r))
 				return
 			}
 		}()
@@ -60,13 +60,13 @@ func lnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 		ctx, err := lnetGetContextFunc(c)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway lnetGetContextFunc error: %v", err)
-			errorHandle(c, config, http.StatusBadGateway, err)
+			errorHandle(c, soHTTP, http.StatusBadGateway, err)
 			return
 		}
 		err = lnetParseRequest(c, req)
 		if err != nil {
 			soLogger.Error(ctx, "BadRequest lnetParseRequest error: %v", err)
-			errorHandle(c, config, http.StatusBadRequest, err)
+			errorHandle(c, soHTTP, http.StatusBadRequest, err)
 			return
 		}
 
@@ -74,7 +74,7 @@ func lnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)
-			errorHandle(c, config, http.StatusBadGateway, err)
+			errorHandle(c, soHTTP, http.StatusBadGateway, err)
 			return
 		}
 		c.JSON(http.StatusOK, resp)
@@ -82,15 +82,16 @@ func lnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 	}
 }
 
-// NewLnet 一个新的lnet gin 对象
-func NewLnet() (*SoHTTP, error) {
+// NewLNet 一个新的lnet gin 对象
+func NewLNet() (so.LNet, error) {
 	lnet, err := New()
 	if err != nil {
 		return nil, err
 	}
-	err = lnet.SetConverFunc(lnetConverFunc)
-	if err != nil {
+
+	if err := lnet.SetConverFunc(lnetConverFunc); err != nil {
 		return nil, err
 	}
+
 	return lnet, nil
 }

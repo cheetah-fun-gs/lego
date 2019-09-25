@@ -2,8 +2,9 @@ package logger
 
 import (
 	"context"
-	"github.com/cheetah-fun-gs/goso/pkg/so"
 	"log"
+
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
 // Logger 默认日志器
@@ -15,7 +16,7 @@ type Logger struct {
 func (logger *Logger) Debug(ctx context.Context, format string, v ...interface{}) {
 	if logger.DebugMode {
 		log.SetPrefix("[Debug] ")
-		log.Printf(format, v...)
+		log.Printf(format, append([]interface{}{ctx}, v...))
 	}
 	return
 }
@@ -23,21 +24,21 @@ func (logger *Logger) Debug(ctx context.Context, format string, v ...interface{}
 // Info 级别日志
 func (logger *Logger) Info(ctx context.Context, format string, v ...interface{}) {
 	log.SetPrefix("[Info] ")
-	log.Printf(format, v...)
+	log.Printf(format, append([]interface{}{ctx}, v...))
 	return
 }
 
 // Warn 级别日志
 func (logger *Logger) Warn(ctx context.Context, format string, v ...interface{}) {
 	log.SetPrefix("[Warn] ")
-	log.Printf(format, v...)
+	log.Printf(format, append([]interface{}{ctx}, v...))
 	return
 }
 
 // Error 级别日志
 func (logger *Logger) Error(ctx context.Context, format string, v ...interface{}) {
 	log.SetPrefix("[Error] ")
-	log.Printf(format, v...)
+	log.Printf(format, append([]interface{}{ctx}, v...))
 	return
 }
 

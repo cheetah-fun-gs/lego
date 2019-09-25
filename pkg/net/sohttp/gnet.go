@@ -4,24 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cheetah-fun-gs/goso/pkg/gatepack"
-	"github.com/cheetah-fun-gs/goso/pkg/so"
-	"github.com/cheetah-fun-gs/goso/pkg/utils"
 	"net/http"
-	"strings"
 
+	"github.com/cheetah-fun-gs/goso/pkg/gatepack"
+
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 	"github.com/gin-gonic/gin"
 )
 
 // gnetBeforeHandleFunc
-func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err error) {
+func gnetParseRequest(c *gin.Context, gatePack so.GatePack, req interface{}) (ctx context.Context, err error) {
 	rawPack, err := c.GetRawData()
 	if err != nil {
 		soLogger.Error(context.Background(), "BadRequest GetRawData error: %v", err)
 		return nil, err
 	}
 
-	gatePack := &gatepack.JSONPack{}
 	if len(rawPack) != 0 {
 		err = json.Unmarshal(rawPack, gatePack)
 		if err != nil {
@@ -36,8 +34,9 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 		return nil, err
 	}
 
-	if len(gatePack.LogicPack) != 0 {
-		err = json.Unmarshal(gatePack.LogicPack, req)
+	logicPack := gatePack.GetLogicPack()
+	if logicPack != nil {
+		err = json.Unmarshal(logicPack.([]byte), req)
 		if err != nil {
 			soLogger.Error(context.Background(), "BadRequest Unmarshal error: %v", err)
 			return nil, err
@@ -48,18 +47,7 @@ func gnetParseRequest(c *gin.Context, req interface{}) (ctx context.Context, err
 	return ctx, nil
 }
 
-// gnetGetContextFunc 默认的获取 ctx 的方法
-func gnetGetContextFunc(c *gin.Context) (context.Context, error) {
-	data := map[string]interface{}{}
-	for _, p := range c.Params {
-		if strings.HasPrefix(p.Key, ContextPrefix) {
-			data[strings.Replace(p.Key, ContextPrefix, "", 1)] = p.Value
-		}
-	}
-	return utils.LoadContext(data), nil
-}
-
-func gnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
+func gnetConverFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc {
 	req := handler.GetReq()
 	resp := handler.GetResp()
 
@@ -69,22 +57,22 @@ func gnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 		defer func() {
 			if r := recover(); r != nil {
 				soLogger.Error(ctx, "BadGateway gnetConverFunc error: %v", r)
-				errorHandle(c, config, http.StatusBadGateway, fmt.Errorf("%v", r))
+				errorHandle(c, soHTTP, http.StatusBadGateway, fmt.Errorf("%v", r))
 				return
 			}
 		}()
 
-		ctx, err := gnetParseRequest(c, req)
+		ctx, err := gnetParseRequest(c, soHTTP.Config.GatePack, req)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway gnetParseRequest error: %v", err)
-			errorHandle(c, config, http.StatusBadRequest, err)
+			errorHandle(c, soHTTP, http.StatusBadRequest, err)
 			return
 		}
 
 		err = handler.Handle(ctx, req, resp)
 		if err != nil {
 			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)
-			errorHandle(c, config, http.StatusBadGateway, err)
+			errorHandle(c, soHTTP, http.StatusBadGateway, err)
 			return
 		}
 		c.JSON(http.StatusOK, resp)
@@ -92,14 +80,34 @@ func gnetConverFunc(config *Config, handler so.Handler) gin.HandlerFunc {
 	}
 }
 
-// NewGnet 一个新的gnet gin 对象
-func NewGnet() (*SoHTTP, error) {
-	gnet, err := New()
+// GNet gnet http 对象
+type GNet struct {
+	*SoHTTP
+}
+
+// SetGatePack 设置包对象
+func (gnet *GNet) SetGatePack(gatePack so.GatePack) error {
+	gnet.SoHTTP.Config.GatePack = gatePack
+	return nil
+}
+
+// NewGNet 一个新的 gnet http 对象
+// http 协议的 gnet 没啥实际价值， 请用专业的 api 网关
+func NewGNet() (so.GNet, error) {
+	soHTTP, err := New()
 	if err != nil {
 		return nil, err
 	}
-	err = gnet.SetConverFunc(gnetConverFunc)
-	if err != nil {
+	if err := soHTTP.SetConverFunc(gnetConverFunc); err != nil {
+		return nil, err
+	}
+
+	gnet := &GNet{
+		SoHTTP: soHTTP,
+	}
+
+	gatePack := &gatepack.JSONPack{}
+	if err := gnet.SetGatePack(gatePack); err != nil {
 		return nil, err
 	}
 	return gnet, nil

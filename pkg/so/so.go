@@ -20,6 +20,6 @@ type NetType int
 
 // 网络类型
 const (
-	NetTypeGnet NetType = iota
-	NetTypeLnet
+	NetTypeGNet NetType = iota
+	NetTypeLNet
 )

@@ -13,15 +13,15 @@ import (
 
 var soLogger = logger.New()
 
-func errorHandle(c *gin.Context, config *Config, code int, err error) {
-	if config.HTTPCodeFunc == nil {
+func errorHandle(c *gin.Context, soHTTP *SoHTTP, code int, err error) {
+	if soHTTP.Config.HTTPCodeFunc == nil {
 		// 未定义 http code 的处理回调, 直接使用 http 错误码, 不建议
 		c.Status(code)
 		return
 	}
 
 	// http code 的处理回调
-	c.JSON(http.StatusOK, config.HTTPCodeFunc(code, err))
+	c.JSON(http.StatusOK, soHTTP.Config.HTTPCodeFunc(code, err))
 	return
 }
 
@@ -51,12 +51,13 @@ func NewRouters(uris []string, httpMethods []string) []interface{} {
 }
 
 // ConverFunc so.HandlerFunc to gin.HandlerFunc
-type ConverFunc func(config *Config, handle so.Handler) gin.HandlerFunc
+type ConverFunc func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc
 
 // Config 配置
 type Config struct {
 	Ports        []int
 	HTTPCodeFunc func(code int, err error) interface{} // 对 http 错误码的处理, BadRequest 和 BadGateway
+	GatePack     so.GatePack                           // gnet 用到
 }
 
 // SoHTTP 符合goso net对象的 http 服务
@@ -83,7 +84,7 @@ func (soHTTP *SoHTTP) Register(handler so.Handler) error {
 	routers := handler.GetRouter()
 	for _, router := range routers {
 		r := router.(*Router)
-		soHTTP.Handle(r.HTTPMethod, r.URI, soHTTP.ConverFunc(soHTTP.Config, handler))
+		soHTTP.Handle(r.HTTPMethod, r.URI, soHTTP.ConverFunc(soHTTP, handler))
 	}
 	return nil
 }
@@ -100,6 +101,11 @@ func (soHTTP *SoHTTP) Start() error {
 // Stop 关闭服务
 func (soHTTP *SoHTTP) Stop() error {
 	return soHTTP.Stop()
+}
+
+// GetPrivateData 获取私有数据
+func (soHTTP *SoHTTP) GetPrivateData() interface{} {
+	return nil
 }
 
 // New 默认http对象
