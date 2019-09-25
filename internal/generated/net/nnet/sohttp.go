@@ -1,4 +1,4 @@
-package lnet
+package nnet
 
 import (
 	"context"

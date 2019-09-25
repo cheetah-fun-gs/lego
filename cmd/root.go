@@ -5,12 +5,13 @@ import (
 
 	"github.com/cheetah-fun-gs/goso/internal/generated/net/gnet"
 	"github.com/cheetah-fun-gs/goso/internal/generated/net/lnet"
+	"github.com/cheetah-fun-gs/goso/internal/generated/net/nnet"
 )
 
 // Execute 主函数
 func Execute() {
 	wg := sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3)
 
 	gnetSoHTTP, err := gnet.SoHTTP()
 	if err != nil {
@@ -29,6 +30,16 @@ func Execute() {
 
 	go func() {
 		lnetSoHTTP.Start()
+		wg.Done()
+	}()
+
+	nnetSoHTTP, err := nnet.SoHTTP()
+	if err != nil {
+		panic(err)
+	}
+
+	go func() {
+		nnetSoHTTP.Start()
 		wg.Done()
 	}()
 
