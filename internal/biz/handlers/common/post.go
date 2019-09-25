@@ -9,7 +9,7 @@ import (
 
 // 常量定义
 var (
-	PostNetType     = []so.NetType{so.NetTypeNNet, so.NetTypeGNet, so.NetTypeLNet} // 在哪些网络注册
+	PostNetTypes    = []so.NetType{so.NetTypeNNet, so.NetTypeGNet, so.NetTypeLNet} // 在哪些网络注册
 	PostURIS        = []string{"common/post"}                                      // http 用
 	PostHTTPMethods = []string{"POST"}                                             // http 用
 )

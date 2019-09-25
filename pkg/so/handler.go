@@ -6,6 +6,7 @@ import (
 
 // Handler 处理器定义
 type Handler interface {
+	IsAnyNet(netType NetType) bool      // 是否某个网络的处理器
 	GetName() string                    // 名称
 	GetRouter() (routers []interface{}) // 路由器对象 允许多个路由器指向相同处理器 router 如果是结构体必须提供 String() 方法
 	GetReq() interface{}                // 请求结构体 空结构体 指针

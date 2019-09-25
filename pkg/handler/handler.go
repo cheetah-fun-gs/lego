@@ -2,15 +2,28 @@ package handler
 
 import (
 	"context"
+
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
 // Handler 默认处理器
 type Handler struct {
 	Name    string
+	Nets    []so.NetType
 	Routers []interface{} // 路由器
 	Req     interface{}   // 请求结构体指针
 	Resp    interface{}   // 响应结构体指针
 	Func    func(ctx context.Context, req, resp interface{}) error
+}
+
+// IsAnyNet 是否某个网络
+func (h *Handler) IsAnyNet(netType so.NetType) bool {
+	for _, t := range h.Nets {
+		if t == netType {
+			return true
+		}
+	}
+	return false
 }
 
 // GetName 获取处理器名称

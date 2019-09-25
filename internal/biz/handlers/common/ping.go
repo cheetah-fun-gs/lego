@@ -9,7 +9,7 @@ import (
 
 // 常量定义
 var (
-	PingNetType     = []so.NetType{so.NetTypeNNet, so.NetTypeGNet, so.NetTypeLNet} // 在哪些网络注册
+	PingNetTypes    = []so.NetType{so.NetTypeNNet, so.NetTypeGNet, so.NetTypeLNet} // 在哪些网络注册
 	PingURIS        = []string{"common/ping"}                                      // http 用
 	PingHTTPMethods = []string{"POST", "GET"}                                      // http 用
 )

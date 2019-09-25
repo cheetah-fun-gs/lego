@@ -1,4 +1,4 @@
-package nnet
+package generated
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 var Handlers = []*handler.Handler{
 	&handler.Handler{
 		Name:    "CommonPing",
+		Nets:    handlerscommon.PingNetTypes,
 		Routers: sohttp.NewRouters(handlerscommon.PingURIS, handlerscommon.PingHTTPMethods),
 		Req:     &handlerscommon.PingReq{},
 		Resp:    &handlerscommon.PingResp{},
@@ -21,6 +22,7 @@ var Handlers = []*handler.Handler{
 	},
 	&handler.Handler{
 		Name:    "CommonPost",
+		Nets:    handlerscommon.PostNetTypes,
 		Routers: sohttp.NewRouters(handlerscommon.PostURIS, handlerscommon.PostHTTPMethods),
 		Req:     &handlerscommon.PostReq{},
 		Resp:    &handlerscommon.PostResp{},
