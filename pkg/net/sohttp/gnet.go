@@ -37,7 +37,7 @@ func gNetUnmarshalFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context
 
 	logicPack := gatePack.GetLogicPack()
 	if logicPack != nil {
-		err = json.Unmarshal(logicPack.([]byte), req)
+		err = json.Unmarshal(logicPack.(json.RawMessage), req)
 		if err != nil {
 			soLogger.Error(ctx, "BadRequest Unmarshal error: %v", err)
 			return nil, err
