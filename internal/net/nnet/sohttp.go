@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/cheetah-fun-gs/goso/internal/biz/handlers"
+	"github.com/cheetah-fun-gs/goso/internal/common"
 	"github.com/cheetah-fun-gs/goso/internal/generated/nnet"
 	sohttp "github.com/cheetah-fun-gs/goso/pkg/net/sohttp"
 
@@ -12,7 +13,7 @@ import (
 
 // SoHTTP 获取 gnet http 服务
 func SoHTTP() (*sohttp.SoHTTP, error) {
-	s, err := sohttp.NewLNet()
+	s, err := sohttp.New()
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +23,7 @@ func SoHTTP() (*sohttp.SoHTTP, error) {
 		c.String(http.StatusOK, "Welcome to goso")
 	})
 
-	if err := s.SetConfig(&sohttp.Config{Ports: []int{8000}}); err != nil {
+	if err := s.SetConfig(&sohttp.Config{Ports: common.PortsHTTPNNet}); err != nil {
 		return nil, err
 	}
 
