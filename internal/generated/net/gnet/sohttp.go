@@ -44,12 +44,15 @@ func SoHTTP() (*sohttp.SoHTTP, error) {
 		c.String(http.StatusOK, "Welcome to goso")
 	})
 
-	// 先设置 config
-	s.SetConfig(&sohttp.Config{
-		Ports: []int{8080},
-	})
-	s.SetHTTPCodeFunc(handlers.HandleCommonRespSoHTTP)
-	// 再注册 handler
+	if err := s.SetConfig(&sohttp.Config{Ports: []int{8080}}); err != nil {
+		return nil, err
+	}
+
+	if err := s.SetErrorNetFunc(handlers.HandleCommonRespSoNet); err != nil {
+		return nil, err
+	}
+
+	// 最后注册 handler
 	for _, h := range hs {
 		s.Register(h)
 	}
