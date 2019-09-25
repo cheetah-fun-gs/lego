@@ -3,8 +3,6 @@ package logger
 import (
 	"context"
 	"log"
-
-	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
 // Logger 默认日志器
@@ -43,6 +41,6 @@ func (logger *Logger) Error(ctx context.Context, format string, v ...interface{}
 }
 
 // New 一个新的日志器
-func New() so.Logger {
+func New() *Logger {
 	return &Logger{}
 }
