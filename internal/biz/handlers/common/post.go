@@ -32,7 +32,7 @@ type PostResp struct {
 	Data   *TestData            `json:"data,omitempty"`
 }
 
-// PostHandle 获取服务器时间
+// PostHandle 测试post数据
 func PostHandle(ctx context.Context, req *PostReq, resp *PostResp) error {
 	resp.Common = handlers.GetcommonRespSuccess()
 	resp.Data = req.Data
