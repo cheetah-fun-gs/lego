@@ -16,21 +16,21 @@ func gNetPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context
 
 	rawPack, err := c.GetRawData()
 	if err != nil {
-		soLogger.Error(ctx, "BadRequest GetRawData error: %v", err)
+		soHTTP.Logger.Error(ctx, "BadRequest GetRawData error: %v", err)
 		return nil, http.StatusBadRequest, err
 	}
 
 	if len(rawPack) != 0 {
 		err = json.Unmarshal(rawPack, gatePack)
 		if err != nil {
-			soLogger.Error(ctx, "BadRequest Unmarshal error: %v", err)
+			soHTTP.Logger.Error(ctx, "BadRequest Unmarshal error: %v", err)
 			return nil, http.StatusBadRequest, err
 		}
 	}
 
 	err = gatePack.Verify()
 	if err != nil {
-		soLogger.Error(ctx, "BadRequest Verify error: %v", err)
+		soHTTP.Logger.Error(ctx, "BadRequest Verify error: %v", err)
 		return nil, http.StatusBadRequest, err
 	}
 
@@ -40,7 +40,7 @@ func gNetPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context
 	if logicPack != nil {
 		err = json.Unmarshal(logicPack.(json.RawMessage), req)
 		if err != nil {
-			soLogger.Error(ctx, "BadRequest Unmarshal error: %v", err)
+			soHTTP.Logger.Error(ctx, "BadRequest Unmarshal error: %v", err)
 			return nil, http.StatusBadRequest, err
 		}
 	}

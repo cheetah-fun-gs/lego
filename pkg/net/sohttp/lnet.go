@@ -23,13 +23,13 @@ func lNetPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context
 
 	rawPack, err := c.GetRawData()
 	if err != nil {
-		soLogger.Error(ctx, "BadRequest GetRawData error: %v", err)
+		soHTTP.Logger.Error(ctx, "BadRequest GetRawData error: %v", err)
 		return ctx, http.StatusBadRequest, err
 	}
 	if len(rawPack) != 0 {
 		err = json.Unmarshal(rawPack, req)
 		if err != nil {
-			soLogger.Error(ctx, "BadRequest Unmarshal error: %v", err)
+			soHTTP.Logger.Error(ctx, "BadRequest Unmarshal error: %v", err)
 			return ctx, http.StatusBadRequest, err
 		}
 	}

@@ -13,8 +13,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var soLogger = logger.New()
-
 // ContextKey ctx key
 type ContextKey interface{}
 
@@ -68,11 +66,17 @@ type Config struct {
 type SoHTTP struct {
 	*gin.Engine
 	Config           *Config
+	Logger           so.Logger
 	GatePack         so.GatePack // gnet 用到
 	ErrorNetFunc     func(code int, err error) interface{}
 	PreHandleFunc    func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)
 	PostHandleFunc   func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)
 	ConverHandleFunc func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc // so.HandlerFunc to gin.HandlerFunc
+}
+
+// SetLogger 设置日志器
+func (soHTTP *SoHTTP) SetLogger(logger so.Logger) {
+	soHTTP.Logger = logger
 }
 
 // SetConfig 设置 Config
@@ -145,13 +149,13 @@ func defaultPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (cont
 
 	rawPack, err := c.GetRawData()
 	if err != nil {
-		soLogger.Error(ctx, "BadRequest GetRawData error: %v", err)
+		soHTTP.Logger.Error(ctx, "BadRequest GetRawData error: %v", err)
 		return ctx, http.StatusBadRequest, err
 	}
 	if len(rawPack) != 0 {
 		err = json.Unmarshal(rawPack, req)
 		if err != nil {
-			soLogger.Error(ctx, "BadRequest Unmarshal error: %v", err)
+			soHTTP.Logger.Error(ctx, "BadRequest Unmarshal error: %v", err)
 			return ctx, http.StatusBadRequest, err
 		}
 	}
@@ -174,7 +178,7 @@ func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc
 
 		defer func() {
 			if r := recover(); r != nil {
-				soLogger.Error(ctx, "InternalServerError defaultConverHandleFunc error: %v", r)
+				soHTTP.Logger.Error(ctx, "InternalServerError defaultConverHandleFunc error: %v", r)
 				errorHandle(ctx, soHTTP, c, http.StatusInternalServerError, fmt.Errorf("%v", r))
 				return
 			}
@@ -182,19 +186,19 @@ func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc
 
 		ctx, code, err := soHTTP.PreHandleFunc(soHTTP, c, req)
 		if err != nil {
-			soLogger.Error(ctx, "BadRequest defaultPreHandleFunc error: %v", err)
+			soHTTP.Logger.Error(ctx, "BadRequest defaultPreHandleFunc error: %v", err)
 			errorHandle(ctx, soHTTP, c, code, err)
 			return
 		}
 
 		if err := handler.Handle(ctx, req, resp); err != nil {
-			soLogger.Error(ctx, "InternalServerError %v Handle error: %v", handler.GetName(), err)
+			soHTTP.Logger.Error(ctx, "InternalServerError %v Handle error: %v", handler.GetName(), err)
 			errorHandle(ctx, soHTTP, c, http.StatusInternalServerError, err)
 			return
 		}
 
 		if code, err := soHTTP.PostHandleFunc(ctx, soHTTP, c, resp); err != nil {
-			soLogger.Error(ctx, "InternalServerError defaultPostHandleFunc error: %v", err)
+			soHTTP.Logger.Error(ctx, "InternalServerError defaultPostHandleFunc error: %v", err)
 			errorHandle(ctx, soHTTP, c, code, err)
 			return
 		}
@@ -208,6 +212,7 @@ func New() (*SoHTTP, error) {
 	soHTTP := &SoHTTP{
 		Engine:           router,
 		Config:           &Config{},
+		Logger:           &logger.Logger{},
 		PreHandleFunc:    defaultPreHandleFunc,
 		PostHandleFunc:   defaultPostHandleFunc,
 		ConverHandleFunc: defaultConverHandleFunc,
