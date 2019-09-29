@@ -3,12 +3,13 @@ package sohttp
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 
 	"github.com/cheetah-fun-gs/goso/pkg/gatepack"
 	"github.com/gin-gonic/gin"
 )
 
-func gNetUnmarshalFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, error) {
+func gNetPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
 	ctx := context.Background()
 
 	gatePack := soHTTP.GatePack
@@ -16,21 +17,21 @@ func gNetUnmarshalFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context
 	rawPack, err := c.GetRawData()
 	if err != nil {
 		soLogger.Error(ctx, "BadRequest GetRawData error: %v", err)
-		return nil, err
+		return nil, http.StatusBadRequest, err
 	}
 
 	if len(rawPack) != 0 {
 		err = json.Unmarshal(rawPack, gatePack)
 		if err != nil {
 			soLogger.Error(ctx, "BadRequest Unmarshal error: %v", err)
-			return nil, err
+			return nil, http.StatusBadRequest, err
 		}
 	}
 
 	err = gatePack.Verify()
 	if err != nil {
 		soLogger.Error(ctx, "BadRequest Verify error: %v", err)
-		return nil, err
+		return nil, http.StatusBadRequest, err
 	}
 
 	ctx = gatePack.GetContext()
@@ -40,10 +41,10 @@ func gNetUnmarshalFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context
 		err = json.Unmarshal(logicPack.(json.RawMessage), req)
 		if err != nil {
 			soLogger.Error(ctx, "BadRequest Unmarshal error: %v", err)
-			return nil, err
+			return nil, http.StatusBadRequest, err
 		}
 	}
-	return ctx, nil
+	return ctx, http.StatusOK, nil
 }
 
 // NewGNet 一个新的 gnet http 对象
@@ -58,7 +59,7 @@ func NewGNet() (*SoHTTP, error) {
 		return nil, err
 	}
 
-	if err := gnet.SetUnmarshalFunc(gNetUnmarshalFunc); err != nil {
+	if err := gnet.SetPreHandleFunc(gNetPreHandleFunc); err != nil {
 		return nil, err
 	}
 

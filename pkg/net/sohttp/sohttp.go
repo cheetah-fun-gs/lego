@@ -9,9 +9,8 @@ import (
 
 	"github.com/cheetah-fun-gs/goso/pkg/logger"
 	"github.com/cheetah-fun-gs/goso/pkg/so"
-	uuid "github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 var soLogger = logger.New()
@@ -51,12 +50,8 @@ func errorHandle(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, code int, 
 		return
 	}
 
-	var errCode so.ErrorNetCode
-	if code == http.StatusBadRequest {
-		errCode = so.ErrorNetCodeBadRequest
-	}
 	// http code 的处理回调
-	c.JSON(http.StatusOK, soHTTP.ErrorNetFunc(errCode, err))
+	c.JSON(http.StatusOK, soHTTP.ErrorNetFunc(code, err))
 	return
 }
 
@@ -66,14 +61,18 @@ type Config struct {
 }
 
 // SoHTTP 符合goso net对象的 http 服务
+// PreHandleFunc handle 的 前置处理
+// PostHandleFunc handle 的 后置处理
+// PreHandleFunc 和 PostHandleFunc 返回的 code 由 ErrorNetFunc 处理
+// 不设置 ErrorNetFunc, code 只能使用 httpcode, 默认使用 BadRequest 和 InternalServerError
 type SoHTTP struct {
 	*gin.Engine
-	Config        *Config
-	GatePack      so.GatePack                                       // gnet 用到
-	ErrorNetFunc  func(code so.ErrorNetCode, err error) interface{} // 对 http 错误码的处理, BadRequest 和 BadGateway
-	UnmarshalFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, error)
-	MarshalFunc   func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) error
-	ConverFunc    func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc // so.HandlerFunc to gin.HandlerFunc
+	Config           *Config
+	GatePack         so.GatePack // gnet 用到
+	ErrorNetFunc     func(code int, err error) interface{}
+	PreHandleFunc    func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)
+	PostHandleFunc   func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)
+	ConverHandleFunc func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc // so.HandlerFunc to gin.HandlerFunc
 }
 
 // SetConfig 设置 Config
@@ -88,26 +87,26 @@ func (soHTTP *SoHTTP) SetGatePack(gatePack so.GatePack) error {
 	return nil
 }
 
-// SetUnmarshalFunc 设置 响应编码方法
-func (soHTTP *SoHTTP) SetUnmarshalFunc(unmarshalFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, error)) error {
-	soHTTP.UnmarshalFunc = unmarshalFunc
+// SetPreHandleFunc 设置 响应编码方法
+func (soHTTP *SoHTTP) SetPreHandleFunc(preHandleFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)) error {
+	soHTTP.PreHandleFunc = preHandleFunc
 	return nil
 }
 
-// SetMarshalFunc 设置 请求解码方法
-func (soHTTP *SoHTTP) SetMarshalFunc(marshalFunc func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) error) error {
-	soHTTP.MarshalFunc = marshalFunc
+// SetPostHandleFunc 设置 请求解码方法
+func (soHTTP *SoHTTP) SetPostHandleFunc(postHandleFunc func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)) error {
+	soHTTP.PostHandleFunc = postHandleFunc
 	return nil
 }
 
-// SetConverFunc 设置 ConverFunc
-func (soHTTP *SoHTTP) SetConverFunc(converFunc func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc) error {
-	soHTTP.ConverFunc = converFunc
+// SetConverHandleFunc 设置 ConverHandleFunc
+func (soHTTP *SoHTTP) SetConverHandleFunc(ConverHandleFunc func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc) error {
+	soHTTP.ConverHandleFunc = ConverHandleFunc
 	return nil
 }
 
 // SetErrorNetFunc 设置框架层错误处理
-func (soHTTP *SoHTTP) SetErrorNetFunc(errFunc func(code so.ErrorNetCode, err error) interface{}) error {
+func (soHTTP *SoHTTP) SetErrorNetFunc(errFunc func(code int, err error) interface{}) error {
 	soHTTP.ErrorNetFunc = errFunc
 	return nil
 }
@@ -117,7 +116,7 @@ func (soHTTP *SoHTTP) Register(handler so.Handler) error {
 	routers := handler.GetRouter()
 	for _, router := range routers {
 		r := router.(*Router)
-		soHTTP.Handle(r.HTTPMethod, r.URI, soHTTP.ConverFunc(soHTTP, handler))
+		soHTTP.Handle(r.HTTPMethod, r.URI, soHTTP.ConverHandleFunc(soHTTP, handler))
 	}
 	return nil
 }
@@ -141,32 +140,32 @@ func (soHTTP *SoHTTP) GetPrivateData() interface{} {
 	return nil
 }
 
-func defaultUnmarshalFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, error) {
+func defaultPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
 	ctx := context.Background()
 
 	rawPack, err := c.GetRawData()
 	if err != nil {
 		soLogger.Error(ctx, "BadRequest GetRawData error: %v", err)
-		return ctx, err
+		return ctx, http.StatusBadRequest, err
 	}
 	if len(rawPack) != 0 {
 		err = json.Unmarshal(rawPack, req)
 		if err != nil {
 			soLogger.Error(ctx, "BadRequest Unmarshal error: %v", err)
-			return ctx, err
+			return ctx, http.StatusBadRequest, err
 		}
 	}
 
 	context.WithValue(ctx, ContextKey("trace_id"), fmt.Sprintf("%v", uuid.NewV4()))
-	return ctx, nil
+	return ctx, http.StatusOK, nil
 }
 
-func defaultMarshalFunc(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) error {
+func defaultPostHandleFunc(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error) {
 	c.JSON(http.StatusOK, resp)
-	return nil
+	return http.StatusOK, nil
 }
 
-func defaultConverFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc {
+func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc {
 	req := handler.GetReq()
 	resp := handler.GetResp()
 
@@ -175,28 +174,28 @@ func defaultConverFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc {
 
 		defer func() {
 			if r := recover(); r != nil {
-				soLogger.Error(ctx, "BadGateway defaultConverFunc error: %v", r)
-				errorHandle(ctx, soHTTP, c, http.StatusBadGateway, fmt.Errorf("%v", r))
+				soLogger.Error(ctx, "InternalServerError defaultConverHandleFunc error: %v", r)
+				errorHandle(ctx, soHTTP, c, http.StatusInternalServerError, fmt.Errorf("%v", r))
 				return
 			}
 		}()
 
-		ctx, err := soHTTP.UnmarshalFunc(soHTTP, c, req)
+		ctx, code, err := soHTTP.PreHandleFunc(soHTTP, c, req)
 		if err != nil {
-			soLogger.Error(ctx, "BadRequest defaultUnmarshalFunc error: %v", err)
-			errorHandle(ctx, soHTTP, c, http.StatusBadRequest, err)
+			soLogger.Error(ctx, "BadRequest defaultPreHandleFunc error: %v", err)
+			errorHandle(ctx, soHTTP, c, code, err)
 			return
 		}
 
 		if err := handler.Handle(ctx, req, resp); err != nil {
-			soLogger.Error(ctx, "BadGateway %v Handle error: %v", handler.GetName(), err)
-			errorHandle(ctx, soHTTP, c, http.StatusBadGateway, err)
+			soLogger.Error(ctx, "InternalServerError %v Handle error: %v", handler.GetName(), err)
+			errorHandle(ctx, soHTTP, c, http.StatusInternalServerError, err)
 			return
 		}
 
-		if err := soHTTP.MarshalFunc(ctx, soHTTP, c, resp); err != nil {
-			soLogger.Error(ctx, "BadGateway defaultMarshalFunc error: %v", err)
-			errorHandle(ctx, soHTTP, c, http.StatusBadGateway, err)
+		if code, err := soHTTP.PostHandleFunc(ctx, soHTTP, c, resp); err != nil {
+			soLogger.Error(ctx, "InternalServerError defaultPostHandleFunc error: %v", err)
+			errorHandle(ctx, soHTTP, c, code, err)
 			return
 		}
 		return
@@ -207,11 +206,11 @@ func defaultConverFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc {
 func New() (*SoHTTP, error) {
 	router := gin.Default()
 	soHTTP := &SoHTTP{
-		Engine:        router,
-		Config:        &Config{},
-		UnmarshalFunc: defaultUnmarshalFunc,
-		MarshalFunc:   defaultMarshalFunc,
-		ConverFunc:    defaultConverFunc,
+		Engine:           router,
+		Config:           &Config{},
+		PreHandleFunc:    defaultPreHandleFunc,
+		PostHandleFunc:   defaultPostHandleFunc,
+		ConverHandleFunc: defaultConverHandleFunc,
 	}
 	return soHTTP, nil
 }

@@ -8,9 +8,18 @@ import (
 	"github.com/cheetah-fun-gs/goso/internal/generated"
 	sohttp "github.com/cheetah-fun-gs/goso/pkg/net/sohttp"
 	"github.com/cheetah-fun-gs/goso/pkg/so"
-
 	"github.com/gin-gonic/gin"
 )
+
+// handleErrorSoNet 框架层错误处理
+func handleErrorSoNet(code int, err error) interface{} {
+	switch code {
+	case http.StatusBadRequest:
+		return handlers.GetCommonResp(handlers.CommonRespCodeClientUnknown, err)
+	default:
+		return handlers.GetCommonResp(handlers.CommonRespCodeServerUnknown, err)
+	}
+}
 
 // SoHTTP 获取 gnet http 服务
 func SoHTTP() (*sohttp.SoHTTP, error) {
@@ -28,7 +37,7 @@ func SoHTTP() (*sohttp.SoHTTP, error) {
 		return nil, err
 	}
 
-	if err := s.SetErrorNetFunc(handlers.HandleCommonRespSoNet); err != nil {
+	if err := s.SetErrorNetFunc(handleErrorSoNet); err != nil {
 		return nil, err
 	}
 

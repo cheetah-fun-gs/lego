@@ -6,8 +6,6 @@ package handlers
 import (
 	"fmt"
 	"time"
-
-	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
 // CommonReq 公共请求
@@ -35,8 +33,8 @@ type CommonResp struct {
 	Ts   int64          `json:"ts,omitempty"`
 }
 
-// GetCommonRespUnknown 未知错误返回
-func GetCommonRespUnknown(code CommonRespCode, err error) *CommonResp {
+// GetCommonResp 通用返回
+func GetCommonResp(code CommonRespCode, err error) *CommonResp {
 	return &CommonResp{
 		Code: code,
 		Msg:  fmt.Sprintf("%v", err),
@@ -55,15 +53,5 @@ func GetcommonRespSuccess() *CommonResp {
 
 // GetCommonRespServerUnknown 服务端未知错误
 func getCommonRespServerUnknown(err error) *CommonResp {
-	return GetCommonRespUnknown(CommonRespCodeServerUnknown, err)
-}
-
-// HandleCommonRespSoNet 框架层错误处理
-func HandleCommonRespSoNet(code so.ErrorNetCode, err error) interface{} {
-	switch code {
-	case so.ErrorNetCodeBadRequest:
-		return GetCommonRespUnknown(CommonRespCodeClientUnknown, err)
-	default:
-		return GetCommonRespUnknown(CommonRespCodeServerUnknown, err)
-	}
+	return GetCommonResp(CommonRespCodeServerUnknown, err)
 }
