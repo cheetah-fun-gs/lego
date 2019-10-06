@@ -3,7 +3,7 @@ package common
 import (
 	"context"
 
-	"github.com/cheetah-fun-gs/goso/internal/biz/handlers"
+	"github.com/cheetah-fun-gs/goso/internal/biz/handler"
 	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
@@ -22,19 +22,19 @@ type TestData struct {
 
 // PostReq 请求
 type PostReq struct {
-	Common *handlers.CommonReq `json:"common,omitempty"`
+	Common *handler.CommonReq `json:"common,omitempty"`
 	Data   *TestData           `json:"data,omitempty"`
 }
 
 // PostResp 响应
 type PostResp struct {
-	Common *handlers.CommonResp `json:"common,omitempty"`
+	Common *handler.CommonResp `json:"common,omitempty"`
 	Data   *TestData            `json:"data,omitempty"`
 }
 
 // PostHandle 测试post数据
 func PostHandle(ctx context.Context, req *PostReq, resp *PostResp) error {
-	resp.Common = handlers.GetcommonRespSuccess()
+	resp.Common = handler.GetcommonRespSuccess()
 	resp.Data = req.Data
 	return nil
 }
