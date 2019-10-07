@@ -5,7 +5,6 @@ import (
 
 	handlercommon "github.com/cheetah-fun-gs/goso/internal/biz/handler/common"
 	"github.com/cheetah-fun-gs/goso/pkg/handler"
-	sohttp "github.com/cheetah-fun-gs/goso/pkg/net/sohttp"
 )
 
 // Handlers gnet handler
@@ -13,7 +12,7 @@ var Handlers = []*handler.Handler{
 	&handler.Handler{
 		Name:    "CommonPing",
 		Nets:    handlercommon.PingNetTypes,
-		Routers: sohttp.NewRouters(handlercommon.PingURIS, handlercommon.PingHTTPMethods),
+		Routers: handlercommon.PingRouters,
 		Req:     &handlercommon.PingReq{},
 		Resp:    &handlercommon.PingResp{},
 		Func: func(ctx context.Context, req, resp interface{}) error {
@@ -23,7 +22,7 @@ var Handlers = []*handler.Handler{
 	&handler.Handler{
 		Name:    "CommonPost",
 		Nets:    handlercommon.PostNetTypes,
-		Routers: sohttp.NewRouters(handlercommon.PostURIS, handlercommon.PostHTTPMethods),
+		Routers: handlercommon.PostRouters,
 		Req:     &handlercommon.PostReq{},
 		Resp:    &handlercommon.PostResp{},
 		Func: func(ctx context.Context, req, resp interface{}) error {

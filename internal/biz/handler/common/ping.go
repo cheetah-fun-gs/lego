@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cheetah-fun-gs/goso/internal/biz/handler"
+	"github.com/cheetah-fun-gs/goso/pkg/net/sohttp"
 	"github.com/cheetah-fun-gs/goso/pkg/so"
 )
 
@@ -12,6 +13,7 @@ var (
 	PingNetTypes    = []so.NetType{so.NetTypeNNet, so.NetTypeGNet, so.NetTypeLNet} // 在哪些网络注册
 	PingURIS        = []string{"common/ping"}                                      // http 用
 	PingHTTPMethods = []string{"POST", "GET"}                                      // http 用
+	PingRouters     = sohttp.NewRouters(PingURIS, PingHTTPMethods)
 )
 
 // PingReq 请求
