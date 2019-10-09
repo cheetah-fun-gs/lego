@@ -2,9 +2,12 @@ package logger
 
 import (
 	"context"
-	"fmt"
 	"log"
 )
+
+func logPrintf(ctx context.Context, format string, v ...interface{}) {
+	log.Printf("%v "+format, append([]interface{}{ctx}, v...))
+}
 
 // Logger 默认日志器
 type Logger struct {
@@ -14,30 +17,30 @@ type Logger struct {
 // Debug 级别日志
 func (logger *Logger) Debug(ctx context.Context, format string, v ...interface{}) {
 	if logger.DebugMode {
-		log.SetPrefix(fmt.Sprintf("[Debug] %v ", ctx))
-		log.Printf(format, v...)
+		log.SetPrefix("[Debug] ")
+		logPrintf(ctx, format, v...)
 	}
 	return
 }
 
 // Info 级别日志
 func (logger *Logger) Info(ctx context.Context, format string, v ...interface{}) {
-	log.SetPrefix(fmt.Sprintf("[Info] %v ", ctx))
-	log.Printf(format, v...)
+	log.SetPrefix("[Info] ")
+	logPrintf(ctx, format, v...)
 	return
 }
 
 // Warn 级别日志
 func (logger *Logger) Warn(ctx context.Context, format string, v ...interface{}) {
-	log.SetPrefix(fmt.Sprintf("[Warn] %v ", ctx))
-	log.Printf(format, v...)
+	log.SetPrefix("[Warn] ")
+	logPrintf(ctx, format, v...)
 	return
 }
 
 // Error 级别日志
 func (logger *Logger) Error(ctx context.Context, format string, v ...interface{}) {
-	log.SetPrefix(fmt.Sprintf("[Error] %v ", ctx))
-	log.Printf(format, v...)
+	log.SetPrefix("[Error] ")
+	logPrintf(ctx, format, v...)
 	return
 }
 
