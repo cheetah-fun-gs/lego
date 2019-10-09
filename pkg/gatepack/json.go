@@ -3,8 +3,8 @@ package gatepack
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -35,10 +35,15 @@ func (pack *JSONPack) GetLogicPack() interface{} {
 // GetContext 获取上下文
 func (pack *JSONPack) GetContext() context.Context {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, ContextKey("version"), pack.Version)
-	ctx = context.WithValue(ctx, ContextKey("game_id"), pack.GameID)
-	ctx = context.WithValue(ctx, ContextKey("cmd"), pack.CMD)
-	ctx = context.WithValue(ctx, ContextKey("seq"), pack.Seq)
-	ctx = context.WithValue(ctx, ContextKey("trace_id"), fmt.Sprintf("%v", uuid.NewV4()))
+	ctx = context.WithValue(ctx, &so.ContextTraceID{}, uuid.NewV4().String())
+	ctx = context.WithValue(ctx, &so.ContextVersion{}, pack.Version)
+	ctx = context.WithValue(ctx, &so.ContextSeqID{}, pack.Seq)
+	ctx = context.WithValue(ctx, &so.ContextRouter{}, &struct {
+		GameID int32
+		CMD    int32
+	}{
+		GameID: pack.GameID,
+		CMD:    pack.CMD,
+	})
 	return ctx
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cheetah-fun-gs/goso/pkg/so"
 	"github.com/cheetah-fun-gs/goso/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +20,8 @@ func lNetPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context
 			}
 		}
 	}
-	ctx := utils.LoadContext(data)
+
+	ctx := utils.LoadContext(data, so.ContextRevert)
 
 	rawPack, err := c.GetRawData()
 	if err != nil {

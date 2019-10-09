@@ -13,9 +13,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// ContextKey ctx key
-type ContextKey interface{}
-
 // Router 路由器
 type Router struct {
 	HTTPMethod string
@@ -146,6 +143,7 @@ func (soHTTP *SoHTTP) GetPrivateData() interface{} {
 
 func defaultPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
 	ctx := context.Background()
+	ctx = context.WithValue(ctx, &so.ContextRouter{}, c.Request.URL.Path)
 
 	rawPack, err := c.GetRawData()
 	if err != nil {
@@ -160,7 +158,7 @@ func defaultPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (cont
 		}
 	}
 
-	ctx = context.WithValue(ctx, ContextKey("trace_id"), fmt.Sprintf("%v", uuid.NewV4()))
+	ctx = context.WithValue(ctx, &so.ContextTraceID{}, uuid.NewV4())
 	return ctx, http.StatusOK, nil
 }
 
@@ -175,7 +173,7 @@ func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc
 
 	return func(c *gin.Context) {
 		ctx := context.Background()
-		ctx = context.WithValue(ctx, ContextKey("uri"), c.Request.URL.Path)
+		ctx = context.WithValue(ctx, &so.ContextRouter{}, c.Request.URL.Path)
 
 		defer func() {
 			if r := recover(); r != nil {
