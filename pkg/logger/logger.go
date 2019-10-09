@@ -6,7 +6,7 @@ import (
 )
 
 func logPrintf(ctx context.Context, format string, v ...interface{}) {
-	log.Printf("%v "+format, append([]interface{}{ctx}, v...))
+	log.Printf("%v "+format, append([]interface{}{ctx}, v...)...)
 }
 
 // Logger 默认日志器
