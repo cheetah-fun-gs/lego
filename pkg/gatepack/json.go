@@ -35,10 +35,10 @@ func (pack *JSONPack) GetLogicPack() interface{} {
 // GetContext 获取上下文
 func (pack *JSONPack) GetContext() context.Context {
 	ctx := context.Background()
-	context.WithValue(ctx, ContextKey("version"), pack.Version)
-	context.WithValue(ctx, ContextKey("game_id"), pack.GameID)
-	context.WithValue(ctx, ContextKey("cmd"), pack.CMD)
-	context.WithValue(ctx, ContextKey("seq"), pack.Seq)
-	context.WithValue(ctx, ContextKey("trace_id"), fmt.Sprintf("%v", uuid.NewV4()))
+	ctx = context.WithValue(ctx, ContextKey("version"), pack.Version)
+	ctx = context.WithValue(ctx, ContextKey("game_id"), pack.GameID)
+	ctx = context.WithValue(ctx, ContextKey("cmd"), pack.CMD)
+	ctx = context.WithValue(ctx, ContextKey("seq"), pack.Seq)
+	ctx = context.WithValue(ctx, ContextKey("trace_id"), fmt.Sprintf("%v", uuid.NewV4()))
 	return ctx
 }

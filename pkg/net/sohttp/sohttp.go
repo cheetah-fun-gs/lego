@@ -160,7 +160,7 @@ func defaultPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (cont
 		}
 	}
 
-	context.WithValue(ctx, ContextKey("trace_id"), fmt.Sprintf("%v", uuid.NewV4()))
+	ctx = context.WithValue(ctx, ContextKey("trace_id"), fmt.Sprintf("%v", uuid.NewV4()))
 	return ctx, http.StatusOK, nil
 }
 
