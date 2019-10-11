@@ -3,10 +3,21 @@ package gatepack
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/cheetah-fun-gs/goso/pkg/so"
 	uuid "github.com/satori/go.uuid"
 )
+
+// JSONPackRouter JSONPackRouter
+type JSONPackRouter struct {
+	GameID int32 `json:"game_id,omitempty"`
+	CMD    int32 `json:"cmd,omitempty"`
+}
+
+func (r *JSONPackRouter) String() string {
+	return fmt.Sprintf("%d-%d", r.GameID, r.CMD)
+}
 
 // JSONPack  json 格式的 gate 包
 type JSONPack struct {
@@ -23,8 +34,11 @@ func (pack *JSONPack) Verify() error {
 }
 
 // GetRouter 获取路由
-func (pack *JSONPack) GetRouter() interface{} {
-	return nil
+func (pack *JSONPack) GetRouter() so.Router {
+	return &JSONPackRouter{
+		GameID: pack.GameID,
+		CMD:    pack.CMD,
+	}
 }
 
 // GetLogicPack 获取业务对象

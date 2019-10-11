@@ -11,12 +11,12 @@ func logPrintf(ctx context.Context, format string, v ...interface{}) {
 
 // Logger 默认日志器
 type Logger struct {
-	DebugMode bool // 是否 debug 模式
+	IsDebugMode bool // 是否 debug 模式
 }
 
 // Debug 级别日志
 func (logger *Logger) Debug(ctx context.Context, format string, v ...interface{}) {
-	if logger.DebugMode {
+	if logger.IsDebugMode {
 		log.SetPrefix("[Debug] ")
 		logPrintf(ctx, format, v...)
 	}

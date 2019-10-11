@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cheetah-fun-gs/goso/pkg/logger"
+	"github.com/cheetah-fun-gs/goplus/logger"
+	sologger "github.com/cheetah-fun-gs/goso/pkg/logger"
 	"github.com/cheetah-fun-gs/goso/pkg/so"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
@@ -25,8 +26,8 @@ func (router *Router) String() string {
 }
 
 // NewRouters 获取路由
-func NewRouters(uris []string, httpMethods []string) []interface{} {
-	routers := []interface{}{}
+func NewRouters(uris []string, httpMethods []string) []so.Router {
+	routers := []so.Router{}
 	for _, httpMethod := range httpMethods {
 		for _, uri := range uris {
 			routers = append(routers, &Router{
@@ -63,7 +64,7 @@ type Config struct {
 type SoHTTP struct {
 	*gin.Engine
 	Config           *Config
-	Logger           so.Logger
+	Logger           logger.Logger
 	GatePack         so.GatePack // gnet 用到
 	ErrorNetFunc     func(code int, err error) interface{}
 	PreHandleFunc    func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)
@@ -72,7 +73,7 @@ type SoHTTP struct {
 }
 
 // SetLogger 设置日志器
-func (soHTTP *SoHTTP) SetLogger(logger so.Logger) {
+func (soHTTP *SoHTTP) SetLogger(logger logger.Logger) {
 	soHTTP.Logger = logger
 }
 
@@ -211,7 +212,7 @@ func New() (*SoHTTP, error) {
 	soHTTP := &SoHTTP{
 		Engine:           router,
 		Config:           &Config{},
-		Logger:           &logger.Logger{},
+		Logger:           &sologger.Logger{},
 		PreHandleFunc:    defaultPreHandleFunc,
 		PostHandleFunc:   defaultPostHandleFunc,
 		ConverHandleFunc: defaultConverHandleFunc,

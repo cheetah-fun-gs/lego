@@ -10,9 +10,9 @@ import (
 type Handler struct {
 	Name    string
 	Nets    []so.NetType
-	Routers []interface{} // 路由器
-	Req     interface{}   // 请求结构体指针
-	Resp    interface{}   // 响应结构体指针
+	Routers []so.Router // 路由器
+	Req     interface{} // 请求结构体指针
+	Resp    interface{} // 响应结构体指针
 	Func    func(ctx context.Context, req, resp interface{}) error
 }
 
@@ -32,7 +32,7 @@ func (h *Handler) GetName() string {
 }
 
 // GetRouter 获取处理器路由
-func (h *Handler) GetRouter() []interface{} {
+func (h *Handler) GetRouter() []so.Router {
 	return h.Routers
 }
 
