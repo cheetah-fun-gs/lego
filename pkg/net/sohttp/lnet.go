@@ -45,7 +45,7 @@ func NewLNet() (*SoHTTP, error) {
 		return nil, err
 	}
 
-	if err := lnet.SetPreHandleFunc(lNetPreHandleFunc); err != nil {
+	if err := lnet.SetBeforeHandleFunc(lNetPreHandleFunc); err != nil {
 		return nil, err
 	}
 

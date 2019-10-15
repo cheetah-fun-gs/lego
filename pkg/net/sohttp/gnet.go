@@ -59,7 +59,7 @@ func NewGNet() (*SoHTTP, error) {
 		return nil, err
 	}
 
-	if err := gnet.SetPreHandleFunc(gNetPreHandleFunc); err != nil {
+	if err := gnet.SetBeforeHandleFunc(gNetPreHandleFunc); err != nil {
 		return nil, err
 	}
 

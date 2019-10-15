@@ -57,9 +57,9 @@ type Config struct {
 }
 
 // SoHTTP 符合goso net对象的 http 服务
-// PreHandleFunc handle 的 前置处理
-// PostHandleFunc handle 的 后置处理
-// PreHandleFunc 和 PostHandleFunc 返回的 code 由 ErrorNetFunc 处理
+// BeforeHandleFunc handle 的 前置处理
+// BehindHandleFunc handle 的 后置处理
+// BeforeHandleFunc 和 BehindHandleFunc 返回的 code 由 ErrorNetFunc 处理
 // 不设置 ErrorNetFunc, code 只能使用 httpcode, 默认使用 BadRequest 和 InternalServerError
 type SoHTTP struct {
 	*gin.Engine
@@ -67,8 +67,8 @@ type SoHTTP struct {
 	Logger           logger.Logger
 	GatePack         so.GatePack // gnet 用到
 	ErrorNetFunc     func(code int, err error) interface{}
-	PreHandleFunc    func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)
-	PostHandleFunc   func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)
+	BeforeHandleFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)
+	BehindHandleFunc func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)
 	ConverHandleFunc func(soHTTP *SoHTTP, handle so.Handler) gin.HandlerFunc // so.HandlerFunc to gin.HandlerFunc
 }
 
@@ -89,15 +89,15 @@ func (soHTTP *SoHTTP) SetGatePack(gatePack so.GatePack) error {
 	return nil
 }
 
-// SetPreHandleFunc 设置 响应编码方法
-func (soHTTP *SoHTTP) SetPreHandleFunc(preHandleFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)) error {
-	soHTTP.PreHandleFunc = preHandleFunc
+// SetBeforeHandleFunc 设置 响应编码方法
+func (soHTTP *SoHTTP) SetBeforeHandleFunc(preHandleFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)) error {
+	soHTTP.BeforeHandleFunc = preHandleFunc
 	return nil
 }
 
-// SetPostHandleFunc 设置 请求解码方法
-func (soHTTP *SoHTTP) SetPostHandleFunc(postHandleFunc func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)) error {
-	soHTTP.PostHandleFunc = postHandleFunc
+// SetBehindHandleFunc 设置 请求解码方法
+func (soHTTP *SoHTTP) SetBehindHandleFunc(postHandleFunc func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)) error {
+	soHTTP.BehindHandleFunc = postHandleFunc
 	return nil
 }
 
@@ -142,7 +142,7 @@ func (soHTTP *SoHTTP) GetPrivateData() interface{} {
 	return nil
 }
 
-func defaultPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
+func defaultBeforeHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, &so.ContextRouter{}, c.Request.URL.Path)
 
@@ -163,7 +163,7 @@ func defaultPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (cont
 	return ctx, http.StatusOK, nil
 }
 
-func defaultPostHandleFunc(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error) {
+func defaultBehindHandleFunc(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error) {
 	c.JSON(http.StatusOK, resp)
 	return http.StatusOK, nil
 }
@@ -184,9 +184,9 @@ func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc
 			}
 		}()
 
-		ctx, code, err := soHTTP.PreHandleFunc(soHTTP, c, req)
+		ctx, code, err := soHTTP.BeforeHandleFunc(soHTTP, c, req)
 		if err != nil {
-			soHTTP.Logger.Error(ctx, "BadRequest defaultPreHandleFunc error: %v", err)
+			soHTTP.Logger.Error(ctx, "BadRequest defaultBeforeHandleFunc error: %v", err)
 			errorHandle(ctx, soHTTP, c, code, err)
 			return
 		}
@@ -197,8 +197,8 @@ func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc
 			return
 		}
 
-		if code, err := soHTTP.PostHandleFunc(ctx, soHTTP, c, resp); err != nil {
-			soHTTP.Logger.Error(ctx, "InternalServerError defaultPostHandleFunc error: %v", err)
+		if code, err := soHTTP.BehindHandleFunc(ctx, soHTTP, c, resp); err != nil {
+			soHTTP.Logger.Error(ctx, "InternalServerError defaultBehindHandleFunc error: %v", err)
 			errorHandle(ctx, soHTTP, c, code, err)
 			return
 		}
@@ -213,8 +213,8 @@ func New() (*SoHTTP, error) {
 		Engine:           router,
 		Config:           &Config{},
 		Logger:           &sologger.Logger{},
-		PreHandleFunc:    defaultPreHandleFunc,
-		PostHandleFunc:   defaultPostHandleFunc,
+		BeforeHandleFunc: defaultBeforeHandleFunc,
+		BehindHandleFunc: defaultBehindHandleFunc,
 		ConverHandleFunc: defaultConverHandleFunc,
 	}
 	return soHTTP, nil
