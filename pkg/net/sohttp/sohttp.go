@@ -90,14 +90,14 @@ func (soHTTP *SoHTTP) SetGatePack(gatePack so.GatePack) error {
 }
 
 // SetBeforeHandleFunc 设置 响应编码方法
-func (soHTTP *SoHTTP) SetBeforeHandleFunc(preHandleFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)) error {
-	soHTTP.BeforeHandleFunc = preHandleFunc
+func (soHTTP *SoHTTP) SetBeforeHandleFunc(beforeHandleFunc func(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error)) error {
+	soHTTP.BeforeHandleFunc = beforeHandleFunc
 	return nil
 }
 
 // SetBehindHandleFunc 设置 请求解码方法
-func (soHTTP *SoHTTP) SetBehindHandleFunc(postHandleFunc func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)) error {
-	soHTTP.BehindHandleFunc = postHandleFunc
+func (soHTTP *SoHTTP) SetBehindHandleFunc(behindHandleFunc func(ctx context.Context, soHTTP *SoHTTP, c *gin.Context, resp interface{}) (int, error)) error {
+	soHTTP.BehindHandleFunc = behindHandleFunc
 	return nil
 }
 
