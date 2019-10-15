@@ -208,7 +208,7 @@ func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc
 
 // New 默认http对象
 func New() (*SoHTTP, error) {
-	router := gin.Default()
+	router := gin.New()
 	soHTTP := &SoHTTP{
 		Engine:           router,
 		Config:           &Config{},
