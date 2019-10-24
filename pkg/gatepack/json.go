@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
+	uuidplus "github.com/cheetah-fun-gs/goplus/uuid"
 	"github.com/cheetah-fun-gs/goso/pkg/so"
-	uuid "github.com/satori/go.uuid"
 )
 
 // JSONPackRouter JSONPackRouter
@@ -49,15 +50,18 @@ func (pack *JSONPack) GetLogicPack() interface{} {
 // GetContext 获取上下文
 func (pack *JSONPack) GetContext() context.Context {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, &so.ContextTraceID{}, uuid.NewV4().String())
-	ctx = context.WithValue(ctx, &so.ContextVersion{}, pack.Version)
-	ctx = context.WithValue(ctx, &so.ContextSeqID{}, pack.Seq)
-	ctx = context.WithValue(ctx, &so.ContextRouter{}, &struct {
-		GameID int32
-		CMD    int32
-	}{
-		GameID: pack.GameID,
-		CMD:    pack.CMD,
-	})
+	val := &so.ContextValue{
+		Version: strconv.Itoa(int(pack.Version)),
+		TraceID: uuidplus.NewV4().Base62(),
+		SeqID:   int(pack.Seq),
+		Router: &struct {
+			GameID int32
+			CMD    int32
+		}{
+			GameID: pack.GameID,
+			CMD:    pack.CMD,
+		},
+	}
+	ctx = context.WithValue(ctx, &so.ContextValue{}, val)
 	return ctx
 }
