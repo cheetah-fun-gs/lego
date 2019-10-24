@@ -50,18 +50,15 @@ func (pack *JSONPack) GetLogicPack() interface{} {
 // GetContext 获取上下文
 func (pack *JSONPack) GetContext() context.Context {
 	ctx := context.Background()
-	val := &so.ContextValue{
-		Version: strconv.Itoa(int(pack.Version)),
-		TraceID: uuidplus.NewV4().Base62(),
-		SeqID:   int(pack.Seq),
-		Router: &struct {
-			GameID int32
-			CMD    int32
-		}{
-			GameID: pack.GameID,
-			CMD:    pack.CMD,
-		},
-	}
-	ctx = context.WithValue(ctx, &so.ContextValue{}, val)
+	ctx = so.ContextWithRouter(ctx, &struct {
+		GameID int32
+		CMD    int32
+	}{
+		GameID: pack.GameID,
+		CMD:    pack.CMD,
+	})
+	ctx = so.ContextWithVersion(ctx, strconv.Itoa(int(pack.Version)))
+	ctx = so.ContextWithTraceID(ctx, uuidplus.NewV4().Base62())
+	ctx = so.ContextWithSeqID(ctx, int(pack.Seq))
 	return ctx
 }

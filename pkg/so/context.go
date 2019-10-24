@@ -2,6 +2,7 @@ package so
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 )
 
@@ -19,48 +20,64 @@ type ContextData struct {
 	Deadline int64         `json:"deadline,omitempty"`
 }
 
-// ContextWithVersion 添加上下文字段 会覆盖
+// String 添加 stringer 方法
+func (v *ContextValue) String() string {
+	data, err := json.Marshal(v)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
+// key is an unexported type for keys defined in this package.
+// This prevents collisions with keys defined in other packages.
+type key int
+
+// userKey is the key for user.User values in Contexts. It is
+// unexported; clients use user.NewContext and user.FromContext
+// instead of using this key directly.
+var ctxKey key
+
+// ContextFetchValue returns the User value stored in ctx, if any.
+func ContextFetchValue(ctx context.Context) (*ContextValue, bool) {
+	u, ok := ctx.Value(ctxKey).(*ContextValue)
+	return u, ok
+}
+
+// ContextWithVersion returns a new Context that carries value u.
 func ContextWithVersion(ctx context.Context, version string) context.Context {
-	val := ctx.Value(&ContextValue{})
-	if val != nil {
-		v := val.(*ContextValue)
-		v.Version = version
+	if val, ok := ContextFetchValue(ctx); ok {
+		val.Version = version
 		return ctx
 	}
-	return context.WithValue(ctx, &ContextValue{}, &ContextValue{Version: version})
+	return context.WithValue(ctx, ctxKey, &ContextValue{Version: version})
 }
 
-// ContextWithTraceID 添加上下文字段 会覆盖
+// ContextWithTraceID returns a new Context that carries value u.
 func ContextWithTraceID(ctx context.Context, traceID string) context.Context {
-	val := ctx.Value(&ContextValue{})
-	if val != nil {
-		v := val.(*ContextValue)
-		v.TraceID = traceID
+	if val, ok := ContextFetchValue(ctx); ok {
+		val.TraceID = traceID
 		return ctx
 	}
-	return context.WithValue(ctx, &ContextValue{}, &ContextValue{TraceID: traceID})
+	return context.WithValue(ctx, ctxKey, &ContextValue{TraceID: traceID})
 }
 
-// ContextWithSeqID 添加上下文字段 会覆盖
+// ContextWithSeqID returns a new Context that carries value u.
 func ContextWithSeqID(ctx context.Context, seqID int) context.Context {
-	val := ctx.Value(&ContextValue{})
-	if val != nil {
-		v := val.(*ContextValue)
-		v.SeqID = seqID
+	if val, ok := ContextFetchValue(ctx); ok {
+		val.SeqID = seqID
 		return ctx
 	}
-	return context.WithValue(ctx, &ContextValue{}, &ContextValue{SeqID: seqID})
+	return context.WithValue(ctx, ctxKey, &ContextValue{SeqID: seqID})
 }
 
-// ContextWithRouter 添加上下文字段 会覆盖
+// ContextWithRouter returns a new Context that carries value u.
 func ContextWithRouter(ctx context.Context, router interface{}) context.Context {
-	val := ctx.Value(&ContextValue{})
-	if val != nil {
-		v := val.(*ContextValue)
-		v.Router = router
+	if val, ok := ContextFetchValue(ctx); ok {
+		val.Router = router
 		return ctx
 	}
-	return context.WithValue(ctx, &ContextValue{}, &ContextValue{Router: router})
+	return context.WithValue(ctx, ctxKey, &ContextValue{Router: router})
 }
 
 // ContextDump 导出
