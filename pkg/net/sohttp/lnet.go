@@ -4,24 +4,25 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/cheetah-fun-gs/goso/pkg/so"
-	"github.com/cheetah-fun-gs/goso/pkg/utils"
+
 	"github.com/gin-gonic/gin"
 )
 
 func lNetPreHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
-	data := map[string]interface{}{}
+	ctx := context.Background()
 	for key, val := range c.Request.PostForm {
-		if strings.HasPrefix(key, ContextPrefix) {
-			if len(val) == 1 {
-				data[strings.Replace(key, ContextPrefix, "", 1)] = val[0]
+		if key == "ctx-data" {
+			v := &so.ContextData{}
+			err := json.Unmarshal([]byte(val[0]), v)
+			if err != nil {
+				soHTTP.Logger.Error(ctx, "BadRequest GetCtxData error: %v", err)
+				return ctx, http.StatusBadRequest, err
 			}
+			ctx = so.ContextLoad(v)
 		}
 	}
-
-	ctx := utils.LoadContext(data, so.ContextRevert)
 
 	rawPack, err := c.GetRawData()
 	if err != nil {

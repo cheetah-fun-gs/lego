@@ -8,10 +8,10 @@ import (
 	"net/http"
 
 	"github.com/cheetah-fun-gs/goplus/logger"
+	uuidplus "github.com/cheetah-fun-gs/goplus/uuid"
 	sologger "github.com/cheetah-fun-gs/goso/pkg/logger"
 	"github.com/cheetah-fun-gs/goso/pkg/so"
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Router 路由器
@@ -144,7 +144,7 @@ func (soHTTP *SoHTTP) GetPrivateData() interface{} {
 
 func defaultBeforeHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, &so.ContextRouter{}, c.Request.URL.Path)
+	ctx = so.ContextWithRouter(ctx, c.Request.URL.Path)
 
 	rawPack, err := c.GetRawData()
 	if err != nil {
@@ -159,7 +159,7 @@ func defaultBeforeHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (c
 		}
 	}
 
-	ctx = context.WithValue(ctx, &so.ContextTraceID{}, uuid.NewV4())
+	ctx = so.ContextWithTraceID(ctx, uuidplus.NewV4().Base62())
 	return ctx, http.StatusOK, nil
 }
 
@@ -174,7 +174,7 @@ func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc
 
 	return func(c *gin.Context) {
 		ctx := context.Background()
-		ctx = context.WithValue(ctx, &so.ContextRouter{}, c.Request.URL.Path)
+		ctx = so.ContextWithRouter(ctx, c.Request.URL.Path)
 
 		defer func() {
 			if r := recover(); r != nil {
