@@ -144,7 +144,10 @@ func (soHTTP *SoHTTP) GetPrivateData() interface{} {
 
 func defaultBeforeHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
 	ctx := context.Background()
-	ctx = so.ContextWithRouter(ctx, c.Request.URL.Path)
+	ctx = so.ContextWithRouter(ctx, &Router{
+		HTTPMethod: c.Request.Method,
+		URI:        c.Request.URL.Path,
+	})
 
 	rawPack, err := c.GetRawData()
 	if err != nil {
@@ -174,7 +177,10 @@ func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc
 
 	return func(c *gin.Context) {
 		ctx := context.Background()
-		ctx = so.ContextWithRouter(ctx, c.Request.URL.Path)
+		ctx = so.ContextWithRouter(ctx, &Router{
+			HTTPMethod: c.Request.Method,
+			URI:        c.Request.URL.Path,
+		})
 
 		defer func() {
 			if r := recover(); r != nil {
