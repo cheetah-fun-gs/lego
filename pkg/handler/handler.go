@@ -50,8 +50,3 @@ func (h *Handler) GetResp() interface{} {
 func (h *Handler) Handle(ctx context.Context, req, resp interface{}) error {
 	return h.Func(ctx, req, resp)
 }
-
-// GetPrivateData 获取私有数据
-func (h *Handler) GetPrivateData() interface{} {
-	return nil
-}
