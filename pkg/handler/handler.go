@@ -11,8 +11,6 @@ type Handler struct {
 	Name    string
 	Nets    []so.NetType
 	Routers []so.Router // 路由器
-	Req     interface{} // 请求结构体指针
-	Resp    interface{} // 响应结构体指针
 	Func    func(ctx context.Context, req, resp interface{}) error
 }
 
@@ -36,22 +34,17 @@ func (h *Handler) GetRouter() []so.Router {
 	return h.Routers
 }
 
-// GetReq 获取请求结构体
-func (h *Handler) GetReq() interface{} {
-	return h.Req
+// CloneReq 克隆请求结构体
+func (h *Handler) CloneReq() interface{} {
+	panic("Not Implement") // 需要各handle自己实现
 }
 
-// GetResp 获取响应结构体
-func (h *Handler) GetResp() interface{} {
-	return h.Resp
+// CloneResp 克隆响应结构体
+func (h *Handler) CloneResp() interface{} {
+	panic("Not Implement") // 需要各handle自己实现
 }
 
 // Handle 处理器方法
 func (h *Handler) Handle(ctx context.Context, req, resp interface{}) error {
 	return h.Func(ctx, req, resp)
-}
-
-// GetPrivateData 获取私有数据
-func (h *Handler) GetPrivateData() interface{} {
-	return nil
 }

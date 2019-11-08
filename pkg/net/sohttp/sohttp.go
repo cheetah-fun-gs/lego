@@ -137,11 +137,6 @@ func (soHTTP *SoHTTP) Stop() error {
 	return soHTTP.Stop()
 }
 
-// GetPrivateData 获取私有数据
-func (soHTTP *SoHTTP) GetPrivateData() interface{} {
-	return nil
-}
-
 func defaultBeforeHandleFunc(soHTTP *SoHTTP, c *gin.Context, req interface{}) (context.Context, int, error) {
 	ctx := context.Background()
 	ctx = so.ContextWithRouter(ctx, &Router{
@@ -172,8 +167,8 @@ func defaultBehindHandleFunc(ctx context.Context, soHTTP *SoHTTP, c *gin.Context
 }
 
 func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc {
-	req := handler.GetReq()
-	resp := handler.GetResp()
+	req := handler.CloneReq()
+	resp := handler.CloneResp()
 
 	return func(c *gin.Context) {
 		ctx := context.Background()
