@@ -167,8 +167,8 @@ func defaultBehindHandleFunc(ctx context.Context, soHTTP *SoHTTP, c *gin.Context
 }
 
 func defaultConverHandleFunc(soHTTP *SoHTTP, handler so.Handler) gin.HandlerFunc {
-	req := handler.GetReq()
-	resp := handler.GetResp()
+	req := handler.CloneReq()
+	resp := handler.CloneResp()
 
 	return func(c *gin.Context) {
 		ctx := context.Background()
