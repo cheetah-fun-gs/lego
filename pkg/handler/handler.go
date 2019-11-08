@@ -11,8 +11,6 @@ type Handler struct {
 	Name    string
 	Nets    []so.NetType
 	Routers []so.Router // 路由器
-	Req     interface{} // 请求结构体指针
-	Resp    interface{} // 响应结构体指针
 	Func    func(ctx context.Context, req, resp interface{}) error
 }
 
