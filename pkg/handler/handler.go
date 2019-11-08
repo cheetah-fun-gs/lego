@@ -36,14 +36,14 @@ func (h *Handler) GetRouter() []so.Router {
 	return h.Routers
 }
 
-// GetReq 获取请求结构体
-func (h *Handler) GetReq() interface{} {
-	return h.Req
+// CloneReq 克隆请求结构体
+func (h *Handler) CloneReq() interface{} {
+	panic("Not Implement") // 需要各handle自己实现
 }
 
-// GetResp 获取响应结构体
-func (h *Handler) GetResp() interface{} {
-	return h.Resp
+// CloneResp 克隆响应结构体
+func (h *Handler) CloneResp() interface{} {
+	panic("Not Implement") // 需要各handle自己实现
 }
 
 // Handle 处理器方法
