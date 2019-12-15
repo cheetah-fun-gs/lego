@@ -3,9 +3,9 @@ package common
 import (
 	"context"
 
-	"github.com/cheetah-fun-gs/goso/internal/biz/handler"
-	"github.com/cheetah-fun-gs/goso/pkg/net/sohttp"
-	"github.com/cheetah-fun-gs/goso/pkg/so"
+	"github.com/cheetah-fun-gs/lego/internal/biz/handler"
+	"github.com/cheetah-fun-gs/lego/pkg/net/sohttp"
+	"github.com/cheetah-fun-gs/lego/pkg/so"
 )
 
 // 常量定义

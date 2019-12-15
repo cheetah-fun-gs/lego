@@ -9,8 +9,8 @@ import (
 
 	"github.com/cheetah-fun-gs/goplus/logger"
 	uuidplus "github.com/cheetah-fun-gs/goplus/uuid"
-	sologger "github.com/cheetah-fun-gs/goso/pkg/logger"
-	"github.com/cheetah-fun-gs/goso/pkg/so"
+	sologger "github.com/cheetah-fun-gs/lego/pkg/logger"
+	"github.com/cheetah-fun-gs/lego/pkg/so"
 	"github.com/gin-gonic/gin"
 )
 

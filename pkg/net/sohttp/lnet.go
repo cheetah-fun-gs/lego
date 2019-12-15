@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/cheetah-fun-gs/goso/pkg/so"
+	"github.com/cheetah-fun-gs/lego/pkg/so"
 
 	"github.com/gin-gonic/gin"
 )

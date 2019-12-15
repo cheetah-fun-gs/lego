@@ -5,7 +5,7 @@
 # 特性
 
 - 业务层和框架层解耦，业务模块可复用
-- 框架层代码可通过[工具](https://github.com/cheetah-fun-gs/goso-cli)生成，让开发人员更专注业务
+- 框架层代码可通过[工具](https://github.com/cheetah-fun-gs/lego-cli)生成，让开发人员更专注业务
 - 可展开成微服务架构或收敛为单一进程
 - 目录遵循[golang-project-layout](https://github.com/golang-standards/project-layout)
 <!-- - 默认支持三种网络协议（http/websocket/quic），用户也可以自定义
@@ -13,7 +13,7 @@
 - 默认支持两种服务发现（consul/k8s），用户也可以自定义 -->
 
 # 工具
-[goso-cli](https://github.com/cheetah-fun-gs/goso-cli)
+[goso-cli](https://github.com/cheetah-fun-gs/lego-cli)
 
 # 说明
 

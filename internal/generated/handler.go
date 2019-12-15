@@ -3,9 +3,9 @@ package generated
 import (
 	"context"
 
-	handlercommon "github.com/cheetah-fun-gs/goso/internal/biz/handler/common"
-	"github.com/cheetah-fun-gs/goso/pkg/handler"
-	"github.com/cheetah-fun-gs/goso/pkg/so"
+	handlercommon "github.com/cheetah-fun-gs/lego/internal/biz/handler/common"
+	"github.com/cheetah-fun-gs/lego/pkg/handler"
+	"github.com/cheetah-fun-gs/lego/pkg/so"
 )
 
 // CommonPingHandler CommonPingHandler

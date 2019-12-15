@@ -3,11 +3,11 @@ package gnet
 import (
 	"net/http"
 
-	"github.com/cheetah-fun-gs/goso/internal/biz/handler"
-	"github.com/cheetah-fun-gs/goso/internal/common"
-	"github.com/cheetah-fun-gs/goso/internal/generated"
-	sohttp "github.com/cheetah-fun-gs/goso/pkg/net/sohttp"
-	"github.com/cheetah-fun-gs/goso/pkg/so"
+	"github.com/cheetah-fun-gs/lego/internal/biz/handler"
+	"github.com/cheetah-fun-gs/lego/internal/common"
+	"github.com/cheetah-fun-gs/lego/internal/generated"
+	sohttp "github.com/cheetah-fun-gs/lego/pkg/net/sohttp"
+	"github.com/cheetah-fun-gs/lego/pkg/so"
 	"github.com/gin-gonic/gin"
 )
 

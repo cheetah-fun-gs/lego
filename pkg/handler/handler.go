@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	"github.com/cheetah-fun-gs/goso/pkg/so"
+	"github.com/cheetah-fun-gs/lego/pkg/so"
 )
 
 // Handler 默认处理器

@@ -1,7 +1,7 @@
 package common
 
 import (
-	"github.com/cheetah-fun-gs/goso/pkg/logger"
+	"github.com/cheetah-fun-gs/lego/pkg/logger"
 )
 
 // GlobalLogger 全局日志器

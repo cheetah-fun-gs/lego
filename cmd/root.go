@@ -3,9 +3,9 @@ package cmd
 import (
 	"sync"
 
-	"github.com/cheetah-fun-gs/goso/internal/net/gnet"
-	"github.com/cheetah-fun-gs/goso/internal/net/lnet"
-	"github.com/cheetah-fun-gs/goso/internal/net/nnet"
+	"github.com/cheetah-fun-gs/lego/internal/net/gnet"
+	"github.com/cheetah-fun-gs/lego/internal/net/lnet"
+	"github.com/cheetah-fun-gs/lego/internal/net/nnet"
 )
 
 // Execute 主函数

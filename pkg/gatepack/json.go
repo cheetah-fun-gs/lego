@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	uuidplus "github.com/cheetah-fun-gs/goplus/uuid"
-	"github.com/cheetah-fun-gs/goso/pkg/so"
+	"github.com/cheetah-fun-gs/lego/pkg/so"
 )
 
 // JSONPackRouter JSONPackRouter
