@@ -27,15 +27,13 @@ func Register(engine *gin.Engine, beforeHandle, behindHandle func(ctx context.Co
 		for _, r := range routers {
 			method := r.(*Router).Method
 			path := r.(*Router).Path
-			req := h.CloneReq()
-			resp := h.CloneResp()
-			engine.Handle(method, path, converHandle(req, resp, beforeHandle, behindHandle, h.Handle))
+			engine.Handle(method, path, converHandle(beforeHandle, behindHandle, h))
 		}
 	}
 	return
 }
 
-func converHandle(req, resp interface{}, beforeHandle, behindHandle func(ctx context.Context, c *gin.Context, v interface{}) error, handle func(ctx context.Context, req, resp interface{}) error) gin.HandlerFunc {
+func converHandle(beforeHandle, behindHandle func(ctx context.Context, c *gin.Context, v interface{}) error, handler legocore.Handler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		ctx = ContextWithRouter(ctx, &Router{
@@ -52,6 +50,9 @@ func converHandle(req, resp interface{}, beforeHandle, behindHandle func(ctx con
 			}
 		}()
 
+		req := handler.CloneReq()
+		resp := handler.CloneResp()
+
 		// 前置处理
 		if beforeHandle != nil {
 			if err := beforeHandle(ctx, c, req); err != nil {
@@ -65,7 +66,7 @@ func converHandle(req, resp interface{}, beforeHandle, behindHandle func(ctx con
 		}
 
 		// 处理
-		if err := handle(ctx, req, resp); err != nil {
+		if err := handler.Handle(ctx, req, resp); err != nil {
 			c.Set(LegoHandlerErr, HandlerError)
 			c.Set(LegoHandlerMsg, err.Error())
 			c.Status(http.StatusInternalServerError)
