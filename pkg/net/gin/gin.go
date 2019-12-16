@@ -2,6 +2,7 @@ package gin
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	legocore "github.com/cheetah-fun-gs/lego/pkg/core"
@@ -10,66 +11,72 @@ import (
 
 // 常量
 const (
-	ErrorBadRequest   = "BadRequest"
-	ErrorHandlerCrash = "HandlerCrash"
+	HandlerError = "lego-handler-error"
+	HandlerMsg   = "lego-handler-msg"
+
+	HandlerErrorCrash     = "crash"
+	HandlerErrorInBefore  = "in before"
+	HandlerErrorInBehind  = "in behind"
+	HandlerErrorInProcess = "in process"
 )
 
 // Register 注册处理器
-func Register(engine *gin.Engine, beforeHandle, behindHandle func(c *gin.Context, v interface{}) error, handlers ...legocore.Handler) {
+func Register(engine *gin.Engine, beforeHandle, behindHandle func(ctx context.Context, c *gin.Context, v interface{}) error, handlers ...legocore.Handler) {
 	for _, h := range handlers {
 		routers := h.GetRouter()
 		for _, r := range routers {
-			httpMethod := r.(*Router).HTTPMethod
-			uri := r.(*Router).URI
+			method := r.(*Router).Method
+			path := r.(*Router).Path
 			req := h.CloneReq()
 			resp := h.CloneResp()
-			engine.Handle(httpMethod, uri, converHandle(req, resp, beforeHandle, behindHandle, h.Handle))
+			engine.Handle(method, path, converHandle(req, resp, beforeHandle, behindHandle, h.Handle))
 		}
 	}
 	return
 }
 
-func converHandle(req, resp interface{}, beforeHandle, behindHandle func(c *gin.Context, v interface{}) error, handle func(ctx context.Context, req, resp interface{}) error) gin.HandlerFunc {
+func converHandle(req, resp interface{}, beforeHandle, behindHandle func(ctx context.Context, c *gin.Context, v interface{}) error, handle func(ctx context.Context, req, resp interface{}) error) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		ctx = ContextWithRouter(ctx, &Router{
-			HTTPMethod: c.Request.Method,
-			URI:        c.Request.URL.Path,
+			Method: c.Request.Method,
+			Path:   c.Request.URL.Path,
 		})
 
 		defer func() {
 			if r := recover(); r != nil {
-				c.Set(ErrorHandlerCrash, r)
+				c.Set(HandlerError, HandlerErrorCrash)
+				c.Set(HandlerMsg, fmt.Sprintf("%v", r))
 				c.Status(http.StatusInternalServerError)
 				return
 			}
 		}()
 
 		// 前置处理
-		var err error
 		if beforeHandle != nil {
-			err = beforeHandle(c, req)
+			if err := beforeHandle(ctx, c, req); err != nil {
+				c.Set(HandlerError, HandlerErrorInBefore)
+				c.Set(HandlerMsg, err.Error())
+				c.Status(http.StatusBadRequest)
+				return
+			}
 		} else {
-			req, err = c.GetRawData()
-		}
-
-		if err != nil {
-			c.Set(ErrorBadRequest, err)
-			c.Status(http.StatusBadRequest)
-			return
+			req = c.Request
 		}
 
 		// 处理
-		if err = handle(ctx, req, resp); err != nil {
-			c.Set(ErrorHandlerCrash, err)
+		if err := handle(ctx, req, resp); err != nil {
+			c.Set(HandlerError, HandlerErrorInProcess)
+			c.Set(HandlerMsg, err.Error())
 			c.Status(http.StatusInternalServerError)
 			return
 		}
 
 		// 后置处理
 		if behindHandle != nil {
-			if err = behindHandle(c, resp); err != nil {
-				c.Set(ErrorHandlerCrash, err)
+			if err := behindHandle(ctx, c, resp); err != nil {
+				c.Set(HandlerError, HandlerErrorInBehind)
+				c.Set(HandlerMsg, err.Error())
 				c.Status(http.StatusInternalServerError)
 				return
 			}
