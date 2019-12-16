@@ -11,13 +11,13 @@ import (
 
 // 常量
 const (
-	HandlerError = "lego-handler-error"
-	HandlerMsg   = "lego-handler-msg"
+	LegoHandlerErr = "lego-handler-err"
+	LegoHandlerMsg = "lego-handler-msg"
 
-	HandlerErrorCrash     = "crash"
-	HandlerErrorInBefore  = "in before"
-	HandlerErrorInBehind  = "in behind"
-	HandlerErrorInProcess = "in process"
+	HandlerCrash       = "handler crash"
+	HandlerError       = "handler error"
+	BeforeHandlerError = "before handler error"
+	BehindHandlerError = "behind handler error"
 )
 
 // Register 注册处理器
@@ -45,8 +45,8 @@ func converHandle(req, resp interface{}, beforeHandle, behindHandle func(ctx con
 
 		defer func() {
 			if r := recover(); r != nil {
-				c.Set(HandlerError, HandlerErrorCrash)
-				c.Set(HandlerMsg, fmt.Sprintf("%v", r))
+				c.Set(LegoHandlerErr, HandlerCrash)
+				c.Set(LegoHandlerMsg, fmt.Sprintf("%v", r))
 				c.Status(http.StatusInternalServerError)
 				return
 			}
@@ -55,8 +55,8 @@ func converHandle(req, resp interface{}, beforeHandle, behindHandle func(ctx con
 		// 前置处理
 		if beforeHandle != nil {
 			if err := beforeHandle(ctx, c, req); err != nil {
-				c.Set(HandlerError, HandlerErrorInBefore)
-				c.Set(HandlerMsg, err.Error())
+				c.Set(LegoHandlerErr, BeforeHandlerError)
+				c.Set(LegoHandlerMsg, err.Error())
 				c.Status(http.StatusBadRequest)
 				return
 			}
@@ -66,8 +66,8 @@ func converHandle(req, resp interface{}, beforeHandle, behindHandle func(ctx con
 
 		// 处理
 		if err := handle(ctx, req, resp); err != nil {
-			c.Set(HandlerError, HandlerErrorInProcess)
-			c.Set(HandlerMsg, err.Error())
+			c.Set(LegoHandlerErr, HandlerError)
+			c.Set(LegoHandlerMsg, err.Error())
 			c.Status(http.StatusInternalServerError)
 			return
 		}
@@ -75,8 +75,8 @@ func converHandle(req, resp interface{}, beforeHandle, behindHandle func(ctx con
 		// 后置处理
 		if behindHandle != nil {
 			if err := behindHandle(ctx, c, resp); err != nil {
-				c.Set(HandlerError, HandlerErrorInBehind)
-				c.Set(HandlerMsg, err.Error())
+				c.Set(LegoHandlerErr, BehindHandlerError)
+				c.Set(LegoHandlerMsg, err.Error())
 				c.Status(http.StatusInternalServerError)
 				return
 			}
