@@ -6,22 +6,18 @@ import (
 
 // Handler 处理器定义
 type Handler interface {
-	GetName() string                                                    // 名称
-	GetRouter() (routers []Router)                                      // 路由器对象 允许多个路由器指向相同处理器
-	CloneReq() interface{}                                              // 克隆一个请求结构体的新指针
-	CloneResp() interface{}                                             // 克隆一个响应结构体的新指针
-	Handle(ctx context.Context, req, resp interface{}) error            // 处理方法
-	InjectBefore(f ...func(ctx context.Context, req interface{}))       // 在 handle 之前注入 异步并行
-	InjectBehind(f ...func(ctx context.Context, req, resp interface{})) // 在 handle 之后注入 异步并行
+	GetName() string                                         // 名称
+	GetRouter() (routers []Router)                           // 路由器对象 允许多个路由器指向相同处理器
+	CloneReq() interface{}                                   // 克隆一个请求结构体的新指针
+	CloneResp() interface{}                                  // 克隆一个响应结构体的新指针
+	Handle(ctx context.Context, req, resp interface{}) error // 处理方法
 }
 
 // DefaultHandler 默认处理器
 type DefaultHandler struct {
-	Name       string
-	Routers    []Router // 路由器
-	Func       func(ctx context.Context, req, resp interface{}) error
-	BeforeFunc []func(ctx context.Context, req interface{})
-	BehindFunc []func(ctx context.Context, req, resp interface{})
+	Name    string
+	Routers []Router // 路由器
+	Func    func(ctx context.Context, req, resp interface{}) error
 }
 
 // GetName 获取处理器名称
@@ -34,20 +30,6 @@ func (h *DefaultHandler) GetRouter() []Router {
 	return h.Routers
 }
 
-// Handle 处理器方法
-func (h *DefaultHandler) Handle(ctx context.Context, req, resp interface{}) error {
-	for _, f := range h.BeforeFunc {
-		go f(ctx, req)
-	}
-	if err := h.Func(ctx, req, resp); err != nil {
-		return err
-	}
-	for _, f := range h.BehindFunc {
-		go f(ctx, req, resp)
-	}
-	return nil
-}
-
 // CloneReq 克隆请求结构体
 func (h *DefaultHandler) CloneReq() interface{} {
 	panic("Not Implement") // 需要各handle自己实现
@@ -56,14 +38,4 @@ func (h *DefaultHandler) CloneReq() interface{} {
 // CloneResp 克隆响应结构体
 func (h *DefaultHandler) CloneResp() interface{} {
 	panic("Not Implement") // 需要各handle自己实现
-}
-
-// InjectBefore 在handle之前注入
-func (h *DefaultHandler) InjectBefore(f ...func(ctx context.Context, req interface{})) {
-	h.BeforeFunc = append(h.BeforeFunc, f...)
-}
-
-// InjectBehind 在handle之后注入
-func (h *DefaultHandler) InjectBehind(f ...func(ctx context.Context, req, resp interface{})) {
-	h.BehindFunc = append(h.BehindFunc, f...)
 }

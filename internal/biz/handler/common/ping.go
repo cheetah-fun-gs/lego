@@ -4,16 +4,13 @@ import (
 	"context"
 
 	"github.com/cheetah-fun-gs/lego/internal/biz/handler"
-	"github.com/cheetah-fun-gs/lego/pkg/net/sohttp"
-	"github.com/cheetah-fun-gs/lego/pkg/so"
 )
 
 // 常量定义
 var (
-	PingNetTypes    = []so.NetType{so.NetTypeNNet, so.NetTypeGNet, so.NetTypeLNet} // 在哪些网络注册
-	PingURIS        = []string{"common/ping"}                                      // http 用
-	PingHTTPMethods = []string{"POST", "GET"}                                      // http 用
-	PingRouters     = sohttp.NewRouters(PingURIS, PingHTTPMethods)
+	SvcNames        = []string{}              // 在哪些服务注册 默认全部
+	PingURIS        = []string{"common/ping"} // http 必填
+	PingHTTPMethods = []string{"POST", "GET"} // http 必填
 )
 
 // PingReq 请求

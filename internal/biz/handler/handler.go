@@ -10,10 +10,8 @@ import (
 
 // CommonReq 公共请求
 type CommonReq struct {
-	Version  string `json:"version,omitempty"`
-	Token    string `json:"token,omitempty"`
-	Username string `json:"username,omitempty"`
-	Ts       int64  `json:"ts,omitempty"`
+	Token string `json:"token,omitempty"`
+	Ts    int64  `json:"ts,omitempty"`
 }
 
 // CommonRespCode 公共返回码
@@ -22,22 +20,30 @@ type CommonRespCode int
 // 公共返回码 定义 0 ~ 100 保留, 作为 框架层的返回码
 const (
 	CommonRespCodeSuccess       CommonRespCode = 0
-	CommonRespCodeServerUnknown                = 1 // 服务端未知错误 BadGateway
-	CommonRespCodeClientUnknown                = 2 // 客户端未知错误 BadRequest
+	CommonRespCodeServerUnknown                = 1 // 服务端未知错误
+	CommonRespCodeClientUnknown                = 2 // 客户端未知错误
 )
+
+// CommonRespMsg 公共返回文案
+var CommonRespMsg = map[CommonRespCode]string{
+	CommonRespCodeSuccess:       "success",
+	CommonRespCodeServerUnknown: "server unknown",
+	CommonRespCodeClientUnknown: "client unknown",
+}
 
 // CommonResp 公共响应
 type CommonResp struct {
-	Code CommonRespCode `json:"code"`
-	Msg  string         `json:"msg,omitempty"`
-	Ts   int64          `json:"ts,omitempty"`
+	Code      CommonRespCode `json:"code,omitempty"`
+	Msg       string         `json:"msg,omitempty"`
+	Ts        int64          `json:"ts,omitempty"`
+	RequestID string         `json:"request_id,omitempty"`
 }
 
 // GetCommonResp 通用返回
 func GetCommonResp(code CommonRespCode, err error) *CommonResp {
 	return &CommonResp{
 		Code: code,
-		Msg:  fmt.Sprintf("%v", err),
+		Msg:  fmt.Sprintf("%s err: %v", CommonRespMsg[CommonRespCodeSuccess], err),
 		Ts:   time.Now().Unix(),
 	}
 }
@@ -46,7 +52,7 @@ func GetCommonResp(code CommonRespCode, err error) *CommonResp {
 func GetcommonRespSuccess() *CommonResp {
 	return &CommonResp{
 		Code: CommonRespCodeSuccess,
-		Msg:  "success",
+		Msg:  CommonRespMsg[CommonRespCodeSuccess],
 		Ts:   time.Now().Unix(),
 	}
 }
