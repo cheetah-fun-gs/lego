@@ -11,6 +11,7 @@ type ContextValue struct {
 	RequestID string `json:"request_id,omitempty"` // 服务端ID
 	Method    string `json:"method,omitempty"`
 	Path      string `json:"path,omitempty"`
+	RawQuery  string `json:"raw_query,omitempty"`
 }
 
 // ContextData 传输用
@@ -58,14 +59,31 @@ func ContextWithRequestID(ctx context.Context, requestID string) context.Context
 	return context.WithValue(ctx, ctxKey, &ContextValue{RequestID: requestID})
 }
 
-// ContextWithRouter returns a new Context that carries value u.
-func ContextWithRouter(ctx context.Context, router *Router) context.Context {
+// ContextWithMethod returns a new Context that carries value u.
+func ContextWithMethod(ctx context.Context, method string) context.Context {
 	if val, ok := ContextFetchValue(ctx); ok {
-		val.Method = router.Method
-		val.Path = router.Path
+		val.Method = method
 		return ctx
 	}
-	return context.WithValue(ctx, ctxKey, &ContextValue{Method: router.Method, Path: router.Path})
+	return context.WithValue(ctx, ctxKey, &ContextValue{Method: method})
+}
+
+// ContextWithPath returns a new Context that carries value u.
+func ContextWithPath(ctx context.Context, path string) context.Context {
+	if val, ok := ContextFetchValue(ctx); ok {
+		val.Path = path
+		return ctx
+	}
+	return context.WithValue(ctx, ctxKey, &ContextValue{Path: path})
+}
+
+// ContextWithRawQuery returns a new Context that carries value u.
+func ContextWithRawQuery(ctx context.Context, rawQuery string) context.Context {
+	if val, ok := ContextFetchValue(ctx); ok {
+		val.RawQuery = rawQuery
+		return ctx
+	}
+	return context.WithValue(ctx, ctxKey, &ContextValue{RawQuery: rawQuery})
 }
 
 // ContextDump 导出

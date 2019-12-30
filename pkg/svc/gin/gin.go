@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 
 	uuidplus "github.com/cheetah-fun-gs/goplus/uuid"
 	legocore "github.com/cheetah-fun-gs/lego/pkg/core"
@@ -12,11 +13,13 @@ import (
 
 // 常量
 const (
-	LegoRequestID     = "lego-request-id"
-	LegoRequestMethod = "lego-request-method"
-	LegoRequestPath   = "lego-request-path"
-	LegoHandlerErr    = "lego-handler-err"
-	LegoHandlerMsg    = "lego-handler-msg"
+	LegoRequestID       = "lego-request-id"
+	LegoRequestMethod   = "lego-request-method"
+	LegoRequestPath     = "lego-request-path"
+	LegoRequestRawQuery = "lego-request-rawquery"
+
+	LegoHandlerErr = "lego-handler-err"
+	LegoHandlerMsg = "lego-handler-msg"
 
 	HandleCrash       = "handle crash"
 	HandleError       = "handle error"
@@ -27,11 +30,18 @@ const (
 // Register 注册处理器
 func Register(engine *gin.Engine, beforeHandle, behindHandle func(ctx context.Context, c *gin.Context, v interface{}) error, handlers ...legocore.Handler) {
 	for _, h := range handlers {
-		routers := h.GetRouter()
-		for _, r := range routers {
-			method := r.GetHTTPMethod()
-			path := r.GetURI()
-			engine.Handle(method, path, converHandle(beforeHandle, behindHandle, h))
+		methods := reflect.ValueOf(h).Elem().FieldByName("HTTPMethods").Interface().([]string)
+		if len(methods) == 0 {
+			methods = []string{"POST"}
+		}
+		paths := reflect.ValueOf(h).Elem().FieldByName("HTTPPaths").Interface().([]string)
+		if len(paths) == 0 {
+			paths = []string{h.GetName()}
+		}
+		for _, method := range methods {
+			for _, path := range paths {
+				engine.Handle(method, path, converHandle(beforeHandle, behindHandle, h))
+			}
 		}
 	}
 	return
@@ -44,11 +54,13 @@ func converHandle(beforeHandle, behindHandle func(ctx context.Context, c *gin.Co
 			RequestID: requestID,
 			Path:      c.Request.URL.Path,
 			Method:    c.Request.Method,
+			RawQuery:  c.Request.URL.RawQuery,
 		})
 		// 不用 context 传参
 		c.Set(LegoRequestID, requestID)
 		c.Set(LegoRequestMethod, c.Request.Method)
 		c.Set(LegoRequestPath, c.Request.URL.Path)
+		c.Set(LegoRequestRawQuery, c.Request.URL.RawQuery)
 
 		defer func() {
 			if r := recover(); r != nil {
