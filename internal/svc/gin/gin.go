@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/cheetah-fun-gs/lego/internal/biz/handler"
 	allhandler "github.com/cheetah-fun-gs/lego/internal/generated/handler"
@@ -42,16 +43,25 @@ func beforeHandleFunc(ctx context.Context, c *gin.Context, req interface{}) erro
 
 	// 获取公共请求头
 	commonReq := reflect.ValueOf(req).Elem().FieldByName("Common").Interface().(*handler.CommonReq)
-	fmt.Println(commonReq)
+	// 合并客户端request id
+	requestids := []string{}
+	if commonReq.RequestID != "" {
+		requestids = append(requestids, commonReq.RequestID)
+	}
+	if c.GetString(legogin.LegoRequestID) != "" {
+		requestids = append(requestids, c.GetString(legogin.LegoRequestID))
+	}
+	commonReq.RequestID = strings.Join(requestids, "-")
+	c.Set(legogin.LegoRequestID, strings.Join(requestids, "-"))
 	return nil
 }
 
 func behindHandleFunc(ctx context.Context, c *gin.Context, resp interface{}) error {
-	// 获取公共响应头 填充requestID
+	// 获取公共响应头
 	commonResp := reflect.ValueOf(resp).Elem().FieldByName("Common").Interface().(*handler.CommonResp)
-	commonResp.RequestID = c.MustGet(legogin.LegoRequestID).(string)
-	fmt.Println(commonResp)
-
+	// 填充requestID
+	commonResp.RequestID = c.GetString(legogin.LegoRequestID)
+	// 设置返回code和msg 用于日志中间件
 	c.Set(logRespCode, commonResp.Code)
 	c.Set(logRespMsg, commonResp.Msg)
 

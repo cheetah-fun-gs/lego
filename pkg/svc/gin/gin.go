@@ -12,9 +12,11 @@ import (
 
 // 常量
 const (
-	LegoRequestID  = "lego-request-id"
-	LegoHandlerErr = "lego-handler-err"
-	LegoHandlerMsg = "lego-handler-msg"
+	LegoRequestID     = "lego-request-id"
+	LegoRequestMethod = "lego-request-method"
+	LegoRequestPath   = "lego-request-path"
+	LegoHandlerErr    = "lego-handler-err"
+	LegoHandlerMsg    = "lego-handler-msg"
 
 	HandleCrash       = "handle crash"
 	HandleError       = "handle error"
@@ -43,7 +45,10 @@ func converHandle(beforeHandle, behindHandle func(ctx context.Context, c *gin.Co
 			Path:      c.Request.URL.Path,
 			Method:    c.Request.Method,
 		})
+		// 不用 context 传参
 		c.Set(LegoRequestID, requestID)
+		c.Set(LegoRequestMethod, c.Request.Method)
+		c.Set(LegoRequestPath, c.Request.URL.Path)
 
 		defer func() {
 			if r := recover(); r != nil {

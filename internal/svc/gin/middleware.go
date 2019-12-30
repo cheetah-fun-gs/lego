@@ -32,7 +32,7 @@ func middlewareLegoGin(c *gin.Context) {
 	if legoErr, ok := c.Get(legogin.LegoHandlerErr); ok {
 		err := fmt.Errorf("%v %v", legoErr, c.MustGet(legogin.LegoHandlerMsg))
 		commonResp := handler.GetCommonResp(handler.CommonRespCodeServerUnknown, err)
-		commonResp.RequestID = c.MustGet(legogin.LegoRequestID).(string)
+		commonResp.RequestID = c.GetString(legogin.LegoRequestID)
 		c.Set(logRespCode, commonResp.Code)
 		c.Set(logRespMsg, commonResp.Msg)
 		c.AbortWithStatusJSON(http.StatusOK, commonResp)
@@ -44,7 +44,7 @@ const (
 	logRespMsg  = "logRespMsg"
 )
 
-// middlewareLogger 日志
+// middlewareLogger access日志
 func middlewareLogger(c *gin.Context) {
 	// Start timer
 	start := time.Now()
@@ -83,8 +83,8 @@ func middlewareLogger(c *gin.Context) {
 	content := strings.Join(contentSplit, ",")
 
 	if httpCode == 200 && (respCode == "0" || respCode == "-") {
-		logger.InfoN(nil, "request", content)
+		logger.InfoN(nil, "access", content)
 	} else {
-		logger.WarnN(nil, "request", content)
+		logger.WarnN(nil, "access", content)
 	}
 }

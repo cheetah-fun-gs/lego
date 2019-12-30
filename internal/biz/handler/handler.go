@@ -10,8 +10,10 @@ import (
 
 // CommonReq 公共请求
 type CommonReq struct {
-	Token string `json:"token,omitempty"`
-	Ts    int64  `json:"ts,omitempty"`
+	UID       string `json:"uid,omitempty"`
+	Token     string `json:"token,omitempty"`
+	Ts        int64  `json:"ts,omitempty"`
+	RequestID string `json:"request_id,omitempty"`
 }
 
 // CommonRespCode 公共返回码
