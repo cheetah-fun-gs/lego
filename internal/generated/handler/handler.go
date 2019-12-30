@@ -12,6 +12,8 @@ import (
 type CommonPingHandler struct {
 	*core.DefaultHandler
 	SvcNames         []string
+	HTTPMethods      []string
+	HTTPPaths        []string
 	beforeInjectFunc []func(ctx context.Context, req *handlercommon.PingReq)
 	behindInjectFunc []func(ctx context.Context, req *handlercommon.PingReq, resp *handlercommon.PingResp)
 }
@@ -59,10 +61,11 @@ func (h *CommonPingHandler) Handle(ctx context.Context, req, resp interface{}) e
 // CommonPing handler
 var CommonPing = &CommonPingHandler{
 	DefaultHandler: &core.DefaultHandler{
-		Name:    "CommonPing",
-		Routers: genRouters(handlercommon.PingURIS, handlercommon.PingHTTPMethods),
+		Name: "CommonPing",
 	},
-	SvcNames: handlercommon.SvcNames,
+	SvcNames:    handlercommon.SvcNames,
+	HTTPMethods: handlercommon.PingHTTPMethods,
+	HTTPPaths:   handlercommon.PingHTTPPaths,
 }
 
 // Handlers 所有handler

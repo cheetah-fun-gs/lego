@@ -49,8 +49,8 @@ func middlewareLogger(c *gin.Context) {
 	// Start timer
 	start := time.Now()
 
-	path := c.Request.URL.Path
 	method := c.Request.Method
+	uri := c.Request.URL.RequestURI()
 	// Process request
 	c.Next()
 
@@ -78,7 +78,7 @@ func middlewareLogger(c *gin.Context) {
 		requestID = requestID.(string)
 	}
 
-	contentSplit := []string{requestID, clientIP, method, path, fmt.Sprintf("%dms", cost),
+	contentSplit := []string{requestID, clientIP, method, uri, fmt.Sprintf("%dms", cost),
 		strconv.Itoa(httpCode), respCode, respMsg}
 	content := strings.Join(contentSplit, ",")
 
