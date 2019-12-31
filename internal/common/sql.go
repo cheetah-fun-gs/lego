@@ -92,11 +92,13 @@ func (sqlConfig *SQLConfig) Open() (*sql.DB, error) {
 			return nil, err
 		}
 		if sqlConfig.MaxIdleConns != 0 {
-			db.SetMaxIdleConns(sqlConfig.MaxIdleConns)
+			sqlConfig.MaxIdleConns = 5
 		}
 		if sqlConfig.MaxOpenConns != 0 {
-			db.SetMaxOpenConns(sqlConfig.MaxOpenConns)
+			sqlConfig.MaxOpenConns = 10
 		}
+		db.SetMaxIdleConns(sqlConfig.MaxIdleConns)
+		db.SetMaxOpenConns(sqlConfig.MaxOpenConns)
 		return db, nil
 	default:
 		return nil, fmt.Errorf("DriverName %s is not support", sqlConfig.DriverName)
