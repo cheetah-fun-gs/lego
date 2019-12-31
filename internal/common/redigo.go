@@ -3,28 +3,24 @@ package common
 import (
 	"time"
 
-	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	mredigopool "github.com/cheetah-fun-gs/goplus/multier/multiredigopool"
 	"github.com/cheetah-fun-gs/goplus/structure"
 	redigo "github.com/gomodule/redigo/redis"
 )
 
-func initRedigo() {
-	// 初始化默认redis连接池
-	defaultRedigoConfig := &RedigoConfig{}
-
-	ok, err := mconfiger.GetStructN("redis", "dbs.default", defaultRedigoConfig)
-	if err != nil {
-		panic(err)
+func initRedigo(dbs map[string]interface{}) {
+	if v, ok := dbs["defalut"]; !ok {
+		panic("redigo dbs.default not configuration")
+	} else {
+		// 初始化默认redis连接池
+		dbConfig := &RedigoConfig{}
+		if err := structure.MapToStruct(v.(map[string]interface{}), dbConfig); err != nil {
+			panic(err)
+		}
+		mredigopool.Init(dbConfig.Pool())
 	}
-	if !ok {
-		panic("redis dbs.default not configuration")
-	}
-
-	mredigopool.Init(defaultRedigoConfig.Pool())
 
 	// 初始化其他redis连接池
-	_, dbs, _ := mconfiger.GetMapN("redis", "dbs")
 	for dbName, dbData := range dbs {
 		if dbName != "default" {
 			dbConfig := &RedigoConfig{}

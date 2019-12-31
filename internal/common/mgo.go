@@ -10,26 +10,24 @@ import (
 	"github.com/globalsign/mgo"
 )
 
-func initMgo() {
-	// 初始化默认 mgo 连接池
-	defaultMgoConfig := &MgoConfig{}
+func initMgo(dbs map[string]interface{}) {
+	if v, ok := dbs["defalut"]; !ok {
+		panic("mgo dbs.default not configuration")
+	} else {
+		// 初始化默认 mgo 连接池
+		dbConfig := &MgoConfig{}
+		if err := structure.MapToStruct(v.(map[string]interface{}), dbConfig); err != nil {
+			panic(err)
+		}
 
-	ok, err := mconfiger.GetStructN("mongo", "dbs.default", defaultMgoConfig)
-	if err != nil {
-		panic(err)
+		defaultDB, err := dbConfig.Conn()
+		if err != nil {
+			panic(err)
+		}
+		mmgodb.Init(defaultDB)
 	}
-	if !ok {
-		panic("mongo dbs.default not configuration")
-	}
-
-	defaultDB, err := defaultMgoConfig.Conn()
-	if err != nil {
-		panic(err)
-	}
-	mmgodb.Init(defaultDB)
 
 	// 初始化其他 mgo 连接池
-	_, dbs, _ := mconfiger.GetMapN("mongo", "dbs")
 	for dbName, dbData := range dbs {
 		if dbName != "default" {
 			dbConfig := &MgoConfig{}
