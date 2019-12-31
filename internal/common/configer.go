@@ -45,15 +45,14 @@ func initConfiger(envName string) {
 	}
 	for _, fPath := range filePaths {
 		configName := filepathplus.NoExt(filepath.Base(fPath))
-		if configName == "default" {
-			continue
-		}
-		vip, err := viperplus.New(configName, filepath.Dir(fPath))
-		if err != nil {
-			panic(err)
-		}
-		if err := mconfiger.Register(configName, vip); err != nil {
-			panic(err)
+		if configName != "default" {
+			vip, err := viperplus.New(configName, filepath.Dir(fPath))
+			if err != nil {
+				panic(err)
+			}
+			if err := mconfiger.Register(configName, vip); err != nil {
+				panic(err)
+			}
 		}
 	}
 }
