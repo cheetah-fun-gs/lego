@@ -79,7 +79,7 @@ func Start(name string, addrs ...string) {
 
 	// 注册首页
 	engine.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Welcome to lego")
+		c.String(http.StatusOK, "Welcome to legogin")
 	})
 
 	// 最后注册 handler
