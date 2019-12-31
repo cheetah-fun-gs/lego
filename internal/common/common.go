@@ -1,15 +1,8 @@
 package common
 
-import (
-	"github.com/cheetah-fun-gs/lego/pkg/logger"
-)
-
-// GlobalLogger 全局日志器
-var GlobalLogger = logger.New()
-
-// 端口定义
+// 常用全局变量
 var (
-	PortsHTTPGNet = []int{8080}
-	PortsHTTPLNet = []int{8000}
-	PortsHTTPNNet = []int{8086}
+	GlobalIsDebugMode bool
+	GlobalIsAutoInit  bool
+	GlobalEnvName     string
 )
