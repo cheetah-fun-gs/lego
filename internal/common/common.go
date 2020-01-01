@@ -30,7 +30,7 @@ func init() {
 
 	// 存在对应配置则初始化对应模块
 
-	if ok, dbs, err := mconfiger.GetMapN("redis", "dbs"); err != nil {
+	if ok, dbs, err := mconfiger.GetMapN("redigo", "dbs"); err != nil {
 		panic(err)
 	} else if ok {
 		initRedigo(dbs)

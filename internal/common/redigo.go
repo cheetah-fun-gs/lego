@@ -9,7 +9,7 @@ import (
 )
 
 func initRedigo(dbs map[string]interface{}) {
-	if v, ok := dbs["defalut"]; !ok {
+	if v, ok := dbs["default"]; !ok {
 		panic("redigo dbs.default not configuration")
 	} else {
 		// 初始化默认redis连接池

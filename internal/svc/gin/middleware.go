@@ -83,8 +83,8 @@ func middlewareLogger(c *gin.Context) {
 	content := strings.Join(contentSplit, ",")
 
 	if httpCode == 200 && (respCode == "0" || respCode == "-") {
-		logger.InfoN(nil, "access", content)
+		logger.InfoN("access", content)
 	} else {
-		logger.WarnN(nil, "access", content)
+		logger.WarnN("access", content)
 	}
 }

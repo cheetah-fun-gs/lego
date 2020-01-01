@@ -11,7 +11,7 @@ import (
 )
 
 func initSQLDB(dbs map[string]interface{}) {
-	if v, ok := dbs["defalut"]; !ok {
+	if v, ok := dbs["default"]; !ok {
 		panic("sql dbs.default not configuration")
 	} else {
 		// 初始化默认sql连接池

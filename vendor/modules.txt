@@ -1,6 +1,6 @@
 # github.com/alecthomas/log4go v0.0.0-20180109082532-d146e6b86faa
 github.com/alecthomas/log4go
-# github.com/cheetah-fun-gs/goplus v0.0.33
+# github.com/cheetah-fun-gs/goplus v0.0.35
 github.com/cheetah-fun-gs/goplus/configer
 github.com/cheetah-fun-gs/goplus/configer/viper
 github.com/cheetah-fun-gs/goplus/dao/sql

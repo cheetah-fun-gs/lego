@@ -93,8 +93,5 @@ func Start(name string, addrs ...string) {
 
 	legogin.Register(engine, beforeHandleFunc, behindHandleFunc, hs...)
 
-	if err := ginStart(engine, addrs...); err != nil {
-		panic(err)
-	}
-	return
+	ginStart(engine, addrs...)
 }

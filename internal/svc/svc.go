@@ -21,7 +21,11 @@ func init() {
 	var wg sync.WaitGroup
 	for _, v := range services.([]interface{}) {
 		svcConfig := &Config{}
-		if err := structure.MapToStruct(v.(map[string]interface{}), svcConfig); err != nil {
+		vv := map[string]interface{}{}
+		for key, val := range v.(map[interface{}]interface{}) {
+			vv[key.(string)] = val
+		}
+		if err := structure.MapToStruct(vv, svcConfig); err != nil {
 			panic(err)
 		}
 		switch svcConfig.Type {
@@ -35,6 +39,7 @@ func init() {
 			panic(fmt.Sprintf("type %v is not support", svcConfig.Type))
 		}
 	}
+	wg.Wait()
 }
 
 // Type 服务类型
@@ -47,7 +52,7 @@ const (
 
 // Config 配置
 type Config struct {
-	Name  string   `json:"name,omitempty"`
-	Type  Type     `json:"type,omitempty"` // 服务类型
-	Addrs []string `json:"addrs,omitempty"`
+	Name  string   `yml:"name,omitempty" json:"name,omitempty"`
+	Type  Type     `yml:"type,omitempty" json:"type,omitempty"` // 服务类型
+	Addrs []string `yml:"addrs,omitempty" json:"addrs,omitempty"`
 }

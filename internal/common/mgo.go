@@ -11,7 +11,7 @@ import (
 )
 
 func initMgo(dbs map[string]interface{}) {
-	if v, ok := dbs["defalut"]; !ok {
+	if v, ok := dbs["default"]; !ok {
 		panic("mgo dbs.default not configuration")
 	} else {
 		// 初始化默认 mgo 连接池
@@ -56,7 +56,7 @@ type MgoConfig struct {
 	DB                  string `yml:"db,omitempty" json:"db,omitempty"`
 	PoolLimit           int    `yml:"pool_limit,omitempty" json:"pool_limit,omitempty"`
 	PoolTimeout         int    `yml:"pool_timeout,omitempty" json:"pool_timeout,omitempty"`
-	MaxIdleTimeMS       int    `yml:"max_idle_time_ms,omitempty" json:"max_idle_time_ms,omitempty"`
+	MaxIdleTime         int    `yml:"max_idle_time,omitempty" json:"max_idle_time,omitempty"`
 	Timeout             int    `yml:"timeout,omitempty" json:"timeout,omitempty"`
 	IsUseTestCollection bool   `yml:"is_use_test_collection,omitempty" json:"is_use_test_collection,omitempty"` // 是否在 collection name 后加 .test  一个业务需求
 }
@@ -71,7 +71,7 @@ func (m *MgoConfig) Conn() (*mgo.Database, error) {
 		Database:      m.DB,
 		PoolLimit:     m.PoolLimit,
 		PoolTimeout:   time.Duration(m.PoolTimeout) * time.Second,
-		MaxIdleTimeMS: m.MaxIdleTimeMS,
+		MaxIdleTimeMS: m.MaxIdleTime * 1000,
 		Timeout:       time.Duration(m.Timeout) * time.Second,
 	}
 	if dialInfo.PoolLimit == 0 {

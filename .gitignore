@@ -15,5 +15,8 @@
 .vscode
 .goland
 
+# log
+logs
+
 # binary
 lego
