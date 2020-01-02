@@ -6,12 +6,12 @@ import (
 	"fmt"
 
 	handlercommon "github.com/cheetah-fun-gs/lego/internal/biz/handler/common"
-	"github.com/cheetah-fun-gs/lego/pkg/core"
+	legocore "github.com/cheetah-fun-gs/lego/pkg/core"
 )
 
 // CommonPingHandler CommonPingHandler
 type CommonPingHandler struct {
-	*core.DefaultHandler
+	*legocore.DefaultHandler
 	SvcNames         []string
 	HTTPMethods      []string
 	HTTPPaths        []string
@@ -61,7 +61,7 @@ func (h *CommonPingHandler) Handle(ctx context.Context, req, resp interface{}) e
 
 // CommonPing handler
 var CommonPing = &CommonPingHandler{
-	DefaultHandler: &core.DefaultHandler{
+	DefaultHandler: &legocore.DefaultHandler{
 		Name: "CommonPing",
 	},
 	SvcNames:    handlercommon.SvcNames,
@@ -70,6 +70,6 @@ var CommonPing = &CommonPingHandler{
 }
 
 // Handlers 所有handler
-var Handlers = []core.Handler{
+var Handlers = []legocore.Handler{
 	CommonPing,
 }
