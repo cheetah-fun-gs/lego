@@ -7,5 +7,6 @@ import (
 	_ "github.com/cheetah-fun-gs/lego/internal/svc"
 )
 
+//go:generate legoctl project gen $GOFILE
 func main() {
 }
