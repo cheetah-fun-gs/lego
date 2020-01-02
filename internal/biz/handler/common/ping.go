@@ -8,7 +8,7 @@ import (
 
 // 常量定义
 var (
-	SvcNames        = []string{}              // 在哪些服务注册 默认全部服务注册
+	PingSvcNames    = []string{}              // 在哪些服务注册 默认全部服务注册
 	PingHTTPPaths   = []string{"common/ping"} // http服务使用 必填
 	PingHTTPMethods = []string{"POST", "GET"} // http服务使用 默认 POST
 )

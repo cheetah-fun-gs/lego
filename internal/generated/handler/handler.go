@@ -64,7 +64,7 @@ var CommonPing = &CommonPingHandler{
 	DefaultHandler: &legocore.DefaultHandler{
 		Name: "CommonPing",
 	},
-	SvcNames:    handlercommon.SvcNames,
+	SvcNames:    handlercommon.PingSvcNames,
 	HTTPMethods: handlercommon.PingHTTPMethods,
 	HTTPPaths:   handlercommon.PingHTTPPaths,
 }
