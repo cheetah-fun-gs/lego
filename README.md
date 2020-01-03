@@ -47,6 +47,14 @@ go generate
 ```
 go build -mod vendor
 ```
+平滑重启
+```
+kill -HUP pid
+```
+停止服务
+```
+kill -TERM pid
+```
 ### 创建处理器（接口）
 ```internal/biz/handler```  
 *强制，所有lego项目的核心，请务必遵循以下协议*  
@@ -59,6 +67,7 @@ go build -mod vendor
 ```
 legoctl handler new <path>
 ```
+
 注意：
 1. 一个功能一个子包，只支持一层子包
 2. 一个处理器一个文件
@@ -81,14 +90,14 @@ import (
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 )
 ```
-在```default.yml```中添加配置
+1. 在```default.yml```中添加配置
 ```golang
     a, err := mconfiger.Get("a")
     b, err := mconfiger.Get("a.b")
     c, err := mconfiger.GetBool("c")
     d := mconfiger.GetBoolD("d", true)
 ```
-添加```demo.yml```, ```abc/test```文件  
+2. 添加```demo.yml```, ```abc/test```文件  
 *配置名忽略文件后缀，且唯一*  
 ```golang
     a, err := mconfiger.GetN("demo", "a")
@@ -97,16 +106,16 @@ import (
     d := mconfiger.GetBoolDN("test", "d", true)
 ```
 ### 日志器和db管理
-日志器  
+1. 日志器  
 ```internal/common/logger.go```  
 ```configs/xxx/logger.yml```  
-redis  
+2. redis  
 ```internal/common/reigo.go```  
 ```configs/xxx/reigo.yml```  
-mongo  
+3. mongo  
 ```internal/common/mgo.go```  
 ```configs/xxx/mgo.yml```  
-sqldb  
+4. sqldb  
 ```internal/common/sql.go```  
 ```configs/xxx/sql.yml```  
 已注册对应配置，可使用以下库获取：
@@ -118,23 +127,24 @@ import (
 	msqldb "github.com/cheetah-fun-gs/goplus/multier/multisqldb"
 )
 
+func (){
+    // 日志器
     mlogger.Debug("%v %v", "a", "b") // default日志器
     mlogger.Debugc(ctx, "%v %v", "a", "b")
     mlogger.DebugN("demo", "%v %v", "a", "b") // demo日志器
     mlogger.DebugcN(ctx, "demo", "%v %v", "a", "b")
-
+    // redis连接
     conn := mredigopool.Get() // default redis连接
     defer conn.Close()
-    
     conn := mredigopool.GetN("demo") // demo redis连接
     defer conn.Close()
-    
+    // sqldb
     _, err := msqldb.Exec(query, args...) // default sqldb
      _, err := msqldb.ExecN("demo", query, args...) // demo sqldb
-
+    // mongodb session
     session, err := mmgodb.Clone() // default mgo session
     defer session.Close()
-
     session, err := mmgodb.CloneN("demo") // demo mgo session
     defer session.Close()
+}()
 ```
