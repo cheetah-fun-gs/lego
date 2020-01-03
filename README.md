@@ -28,7 +28,7 @@
 │   ├── generated   # 生成代码目录（不要手工修改）
 │   │   └── handler #   处理器
 │   └── svc         # 服务管理目录
-│       ├── gin     #   gin服务
+│       ├── gin     #   gin框架
 │       └── svc.go
 ├── main.go
 ├── pkg             # 共有代码（可做为二方库开放）
