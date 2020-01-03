@@ -101,10 +101,10 @@ import (
 ```internal/common/logger.go```  
 ```configs/xxx/logger.yml```  
 redis  
-```internal/common/reigo.go``` 
+```internal/common/reigo.go```  
 ```configs/xxx/reigo.yml```  
 mongo  
-```internal/common/mgo.go``` 
+```internal/common/mgo.go```  
 ```configs/xxx/mgo.yml```  
 sqldb  
 ```internal/common/sql.go```  
