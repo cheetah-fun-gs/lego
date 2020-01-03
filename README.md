@@ -97,16 +97,16 @@ import (
     d := mconfiger.GetBoolDN("test", "d", true)
 ```
 ### 日志器和db管理
-日志器
+日志器  
 ```internal/common/logger.go```  
 ```configs/xxx/logger.yml```  
-redis
+redis  
 ```internal/common/reigo.go``` 
 ```configs/xxx/reigo.yml```  
-mongo
+mongo  
 ```internal/common/mgo.go``` 
 ```configs/xxx/mgo.yml```  
-sqldb
+sqldb  
 ```internal/common/sql.go```  
 ```configs/xxx/sql.yml```  
 已注册对应配置，可使用以下库获取：
