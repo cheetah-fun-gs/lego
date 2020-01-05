@@ -3,7 +3,6 @@ package common
 import (
 	"github.com/cheetah-fun-gs/lego/cmd"
 
-	configer "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 )
 
@@ -20,7 +19,7 @@ func init() {
 	// 常用全局变量初始化 其次
 	GlobalEnvName = cmd.EnvName
 	GlobalIsAutoInit = cmd.IsAutoInit
-	GlobalIsDebugMode = configer.GetBoolD("is_debug_mode", false)
+	GlobalIsDebugMode = mconfiger.GetBoolD("is_debug_mode", false)
 
 	if !GlobalIsAutoInit {
 		return
