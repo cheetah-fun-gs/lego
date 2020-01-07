@@ -10,37 +10,46 @@ import (
 	"github.com/globalsign/mgo"
 )
 
-func initMgo(dbs map[string]interface{}) {
-	if v, ok := dbs["default"]; !ok {
+// ParseMgo ...
+func ParseMgo() map[string]*MgoConfig {
+	_, dbs, err := mconfiger.GetMapN("mgo", "dbs")
+	if err != nil {
+		panic(err)
+	}
+
+	mgos := map[string]*MgoConfig{}
+	for name, data := range dbs {
+		dbConfig := &MgoConfig{}
+		if err := structure.MapToStruct(data.(map[string]interface{}), dbConfig); err != nil {
+			panic(err)
+		}
+		mgos[name] = dbConfig
+	}
+	return mgos
+}
+
+// InitMgo ...
+func InitMgo(mgos map[string]*MgoConfig) {
+	if dbConfig, ok := mgos["default"]; !ok {
 		panic("mgo dbs.default not configuration")
 	} else {
 		// 初始化默认 mgo 连接池
-		dbConfig := &MgoConfig{}
-		if err := structure.MapToStruct(v.(map[string]interface{}), dbConfig); err != nil {
-			panic(err)
-		}
-
-		defaultDB, err := dbConfig.Conn()
+		db, err := dbConfig.Conn()
 		if err != nil {
 			panic(err)
 		}
-		mmgodb.Init(defaultDB)
+		mmgodb.Init(db)
 	}
 
 	// 初始化其他 mgo 连接池
-	for dbName, dbData := range dbs {
-		if dbName != "default" {
-			dbConfig := &MgoConfig{}
-			if err := structure.MapToStruct(dbData.(map[string]interface{}), dbConfig); err != nil {
-				panic(err)
-			}
-
+	for name, dbConfig := range mgos {
+		if name != "default" {
 			db, err := dbConfig.Conn()
 			if err != nil {
 				panic(err)
 			}
 
-			if err := mmgodb.Register(dbName, db); err != nil {
+			if err := mmgodb.Register(name, db); err != nil {
 				panic(err)
 			}
 		}

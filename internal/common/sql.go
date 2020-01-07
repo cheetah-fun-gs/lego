@@ -5,20 +5,36 @@ import (
 	"fmt"
 
 	sqlplus "github.com/cheetah-fun-gs/goplus/dao/sql"
+	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	msqldb "github.com/cheetah-fun-gs/goplus/multier/multisqldb"
 	"github.com/cheetah-fun-gs/goplus/structure"
 	"github.com/go-sql-driver/mysql"
 )
 
-func initSQLDB(dbs map[string]interface{}) {
-	if v, ok := dbs["default"]; !ok {
+// ParseSQLDB ...
+func ParseSQLDB() map[string]*SQLConfig {
+	_, dbs, err := mconfiger.GetMapN("sql", "dbs")
+	if err != nil {
+		panic(err)
+	}
+
+	sqls := map[string]*SQLConfig{}
+	for name, data := range dbs {
+		dbConfig := &SQLConfig{}
+		if err := structure.MapToStruct(data.(map[string]interface{}), dbConfig); err != nil {
+			panic(err)
+		}
+		sqls[name] = dbConfig
+	}
+	return sqls
+}
+
+// InitSQLDB ...
+func InitSQLDB(sqls map[string]*SQLConfig) {
+	if dbConfig, ok := sqls["default"]; !ok {
 		panic("sql dbs.default not configuration")
 	} else {
 		// 初始化默认sql连接池
-		dbConfig := &SQLConfig{}
-		if err := structure.MapToStruct(v.(map[string]interface{}), dbConfig); err != nil {
-			panic(err)
-		}
 		defaultDB, err := dbConfig.Open()
 		if err != nil {
 			panic(err)
@@ -28,19 +44,15 @@ func initSQLDB(dbs map[string]interface{}) {
 	}
 
 	// 初始化其他sql连接池
-	for dbName, dbData := range dbs {
-		if dbName != "default" {
-			dbConfig := &SQLConfig{}
-			if err := structure.MapToStruct(dbData.(map[string]interface{}), dbConfig); err != nil {
-				panic(err)
-			}
+	for name, dbConfig := range sqls {
+		if name != "default" {
 			db, err := dbConfig.Open()
 			if err != nil {
 				panic(err)
 			}
 
 			in := sqlplus.NewSafeInterceptor()
-			if err := msqldb.RegisterWithInterceptor(dbName, db, in); err != nil {
+			if err := msqldb.RegisterWithInterceptor(name, db, in); err != nil {
 				panic(err)
 			}
 		}

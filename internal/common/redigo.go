@@ -3,31 +3,43 @@ package common
 import (
 	"time"
 
+	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	mredigopool "github.com/cheetah-fun-gs/goplus/multier/multiredigopool"
 	"github.com/cheetah-fun-gs/goplus/structure"
 	redigo "github.com/gomodule/redigo/redis"
 )
 
-func initRedigo(dbs map[string]interface{}) {
-	if v, ok := dbs["default"]; !ok {
+// ParseRedigo ...
+func ParseRedigo() map[string]*RedigoConfig {
+	_, dbs, err := mconfiger.GetMapN("redigo", "dbs")
+	for err != nil {
+		panic(err)
+	}
+
+	redigos := map[string]*RedigoConfig{}
+	for name, data := range dbs {
+		dbConfig := &RedigoConfig{}
+		if err := structure.MapToStruct(data.(map[string]interface{}), dbConfig); err != nil {
+			panic(err)
+		}
+		redigos[name] = dbConfig
+	}
+	return redigos
+}
+
+// InitRedigo ...
+func InitRedigo(redigos map[string]*RedigoConfig) {
+	if dbConfig, ok := redigos["default"]; !ok {
 		panic("redigo dbs.default not configuration")
 	} else {
 		// 初始化默认redis连接池
-		dbConfig := &RedigoConfig{}
-		if err := structure.MapToStruct(v.(map[string]interface{}), dbConfig); err != nil {
-			panic(err)
-		}
 		mredigopool.Init(dbConfig.Pool())
 	}
 
 	// 初始化其他redis连接池
-	for dbName, dbData := range dbs {
-		if dbName != "default" {
-			dbConfig := &RedigoConfig{}
-			if err := structure.MapToStruct(dbData.(map[string]interface{}), dbConfig); err != nil {
-				panic(err)
-			}
-			if err := mredigopool.Register(dbName, dbConfig.Pool()); err != nil {
+	for name, dbConfig := range redigos {
+		if name != "default" {
+			if err := mredigopool.Register(name, dbConfig.Pool()); err != nil {
 				panic(err)
 			}
 		}

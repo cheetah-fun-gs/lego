@@ -21,29 +21,25 @@ func init() {
 	GlobalIsAutoInit = cmd.IsAutoInit
 	GlobalIsDebugMode = mconfiger.GetBoolD("is_debug_mode", false)
 
-	if !GlobalIsAutoInit {
+	if !GlobalIsAutoInit { // 防止scf直接加载所有资源
 		return
 	}
 
-	initLogger() // 其次
+	InitLogger(ParseLogger()) // 其次
 
 	// 存在对应配置则初始化对应模块
-
-	if ok, dbs, err := mconfiger.GetMapN("redigo", "dbs"); err != nil {
-		panic(err)
-	} else if ok {
-		initRedigo(dbs)
+	redigos := ParseRedigo()
+	if len(redigos) > 0 {
+		InitRedigo(redigos)
 	}
 
-	if ok, dbs, err := mconfiger.GetMapN("sql", "dbs"); err != nil {
-		panic(err)
-	} else if ok {
-		initSQLDB(dbs)
+	sqls := ParseSQLDB()
+	if len(sqls) > 0 {
+		InitSQLDB(sqls)
 	}
 
-	if ok, dbs, err := mconfiger.GetMapN("mgo", "dbs"); err != nil {
-		panic(err)
-	} else if ok {
-		initMgo(dbs)
+	mgos := ParseMgo()
+	if len(mgos) > 0 {
+		InitMgo(mgos)
 	}
 }

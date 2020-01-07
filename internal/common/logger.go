@@ -7,30 +7,37 @@ import (
 	"github.com/cheetah-fun-gs/goplus/structure"
 )
 
-// initLogger 初始化日志器
-func initLogger() {
-	// 初始化默认日志
-	defaultLoggerConfig := &log4gopulus.Config{}
-	ok, err := mconfiger.GetStructN("logger", "logs.default", defaultLoggerConfig)
+// ParseLogger 解析所有日志器配置
+func ParseLogger() map[string]*log4gopulus.Config {
+	_, logs, err := mconfiger.GetMapN("logger", "logs")
 	if err != nil {
 		panic(err)
 	}
-	if !ok {
-		panic("logger logs.default not configuration")
+
+	loggers := map[string]*log4gopulus.Config{}
+	for name, data := range logs {
+		logConfig := &log4gopulus.Config{}
+		if err := structure.MapToStruct(data.(map[string]interface{}), logConfig); err != nil {
+			panic(err)
+		}
+		loggers[name] = logConfig
+	}
+	return loggers
+}
+
+// InitLogger 初始化日志器
+func InitLogger(logs map[string]*log4gopulus.Config) {
+	// 初始化默认日志
+	if logConfig, ok := logs["default"]; !ok {
+		panic("logs.default not configure")
+	} else {
+		logConfig.IsDebugMode = GlobalIsDebugMode // 以全局变量为准
+		mlogger.Init(log4gopulus.New("default", logConfig))
 	}
 
-	defaultLoggerConfig.IsDebugMode = GlobalIsDebugMode // 以全局变量为准
-	mlogger.Init(log4gopulus.New("default", defaultLoggerConfig))
-
 	// 初始化其他日志
-	_, logs, _ := mconfiger.GetMapN("logger", "logs")
-	for name, data := range logs {
+	for name, logConfig := range logs {
 		if name != "default" {
-			logConfig := &log4gopulus.Config{}
-			if err := structure.MapToStruct(data.(map[string]interface{}), logConfig); err != nil {
-				panic(err)
-			}
-
 			logConfig.IsDebugMode = GlobalIsDebugMode // 以全局变量为准
 			if err := mlogger.Register(name, log4gopulus.New(name, logConfig)); err != nil {
 				panic(err)
