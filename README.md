@@ -148,3 +148,10 @@ func (){
     defer session.Close()
 }()
 ```
+
+
+### 腾讯云scf api网关触发器
+```
+cd $PROJECT/deployments/faas/scfgw
+go build -mod vendor
+```
