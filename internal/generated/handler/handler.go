@@ -70,6 +70,6 @@ var CommonPing = &CommonPingHandler{
 }
 
 // Handlers 所有handler
-var Handlers = []legocore.Handler{
-	CommonPing,
+var Handlers = map[string]legocore.Handler{
+	"CommonPing": CommonPing,
 }

@@ -8,60 +8,41 @@ import (
 	legocore "github.com/cheetah-fun-gs/lego/pkg/core"
 )
 
-// Server ...
-type Server struct {
-	handlers     map[string]legocore.Handler
-	beforeHandle func(ctx context.Context, event Event, v interface{}) error
-	behindHandle func(ctx context.Context, event Event, v interface{}) error
-}
-
-// New ...
-func New(beforeHandle, behindHandle func(ctx context.Context, event Event, v interface{}) error, handlers ...legocore.Handler) *Server {
-	server := &Server{
-		handlers:     map[string]legocore.Handler{},
-		beforeHandle: beforeHandle,
-		behindHandle: behindHandle,
-	}
-	for _, h := range handlers {
-		server.handlers[h.GetName()] = h
-	}
-	return server
-}
-
 type action struct {
 	Action string `json:"action,omitempty"`
 }
 
-// Handle ...
-func (server *Server) Handle(ctx context.Context, event Event) (resp interface{}, err error) {
+// ParseAction ...
+func ParseAction(ctx context.Context, event Event) (string, error) {
 	act := &action{}
 	if err := json.Unmarshal(event.Body, act); err != nil {
-		return nil, fmt.Errorf("act Unmarshal error: %v", err)
+		return "", fmt.Errorf("act Unmarshal error: %v", err)
 	}
 	if act.Action == "" {
-		return nil, fmt.Errorf("act is blank")
+		return "", fmt.Errorf("act is blank")
 	}
 
-	handler, ok := server.handlers[act.Action]
-	if !ok {
-		return nil, fmt.Errorf("act is not found: %v", act.Action)
-	}
+	ctx = ContextWithAction(ctx, act.Action)
+	return act.Action, nil
+}
 
+// Handle ...
+func Handle(ctx context.Context, event Event,
+	beforeHandle, behindHandle func(ctx context.Context, event Event, v interface{}) error,
+	handler legocore.Handler) (resp interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("act crash: %v, err: %v", act.Action, r)
+			err = fmt.Errorf("crash err: %v", r)
 			return
 		}
 	}()
-
-	ctx = ContextWithAction(ctx, act.Action)
 
 	req := handler.CloneReq()
 	resp = handler.CloneResp()
 
 	// 前置处理
-	if server.beforeHandle != nil {
-		if err := server.beforeHandle(ctx, event, req); err != nil {
+	if beforeHandle != nil {
+		if err := beforeHandle(ctx, event, req); err != nil {
 			return nil, fmt.Errorf("beforeHandle err: %v", err)
 		}
 	} else {
@@ -74,8 +55,8 @@ func (server *Server) Handle(ctx context.Context, event Event) (resp interface{}
 	}
 
 	// 后置处理
-	if server.behindHandle != nil {
-		if err := server.behindHandle(ctx, event, resp); err != nil {
+	if behindHandle != nil {
+		if err := behindHandle(ctx, event, resp); err != nil {
 			return nil, fmt.Errorf("behindHandle err: %v", err)
 		}
 	}

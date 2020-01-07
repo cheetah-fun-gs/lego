@@ -112,6 +112,10 @@ github.com/spf13/jwalterweatherman
 github.com/spf13/pflag
 # github.com/spf13/viper v1.4.0
 github.com/spf13/viper
+# github.com/tencentyun/scf-go-lib v0.0.0-20190817080819-4a2819cda320
+github.com/tencentyun/scf-go-lib/cloudfunction
+github.com/tencentyun/scf-go-lib/cloudfunction/messages
+github.com/tencentyun/scf-go-lib/functioncontext
 # github.com/ugorji/go/codec v1.1.7
 github.com/ugorji/go/codec
 # golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a
