@@ -1,27 +1,40 @@
 package common
 
 import (
-	"github.com/cheetah-fun-gs/lego/cmd"
-
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 )
+
+// StartType 启动类型
+type StartType int
+
+// 常量
+const (
+	StartTypeWeb StartType = iota
+	StartTypeScfgw
+)
+
+// Opt ...
+type Opt struct {
+	EnvName     string
+	StartType   StartType
+	IsDebugMode bool
+}
 
 // 常用全局变量
 var (
 	GlobalIsDebugMode bool
-	GlobalIsAutoInit  bool
 	GlobalEnvName     string
 )
 
-func init() {
-	initConfiger(cmd.EnvName) // 最先
+// Init common 不可以有 init 方法, 统一放在 这里
+func Init(opt *Opt) {
+	initConfiger(opt.EnvName) // 最先
 
 	// 常用全局变量初始化 其次
-	GlobalEnvName = cmd.EnvName
-	GlobalIsAutoInit = cmd.IsAutoInit
+	GlobalEnvName = opt.EnvName
 	GlobalIsDebugMode = mconfiger.GetBoolD("is_debug_mode", false)
 
-	if !GlobalIsAutoInit { // 防止scf直接加载所有资源
+	if opt.StartType != StartTypeWeb { // 防止scf直接加载所有资源
 		return
 	}
 

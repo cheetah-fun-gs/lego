@@ -3,14 +3,14 @@ package cmd
 import (
 	"os"
 
+	"github.com/cheetah-fun-gs/lego/internal/common"
 	"github.com/spf13/cobra"
 )
 
 // 参数
 var (
-	EnvName    string
-	IsAutoInit bool // 是否自动init  非web服务不自动加载
-	isHelp     bool
+	envName string
+	isHelp  bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -21,12 +21,15 @@ var rootCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(0)
 		}
+		common.Init(&common.Opt{
+			EnvName:   envName,
+			StartType: common.StartTypeWeb,
+		})
 	},
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&EnvName, "env", "e", "local", "configs环境")
-	rootCmd.PersistentFlags().BoolVarP(&IsAutoInit, "auto-init", "a", true, "是否自动Init")
+	rootCmd.PersistentFlags().StringVarP(&envName, "env", "e", "local", "configs环境")
 	rootCmd.PersistentFlags().BoolVarP(&isHelp, "help", "h", false, "帮助信息")
 
 	if err := rootCmd.Execute(); err != nil {
