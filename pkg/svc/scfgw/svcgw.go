@@ -27,8 +27,8 @@ func ParseAction(ctx context.Context, event Event) (string, error) {
 }
 
 // Handle ...
-func Handle(ctx context.Context, event Event,
-	beforeHandle, behindHandle func(ctx context.Context, event Event, v interface{}) error,
+func Handle(ctx context.Context, event *Event,
+	beforeHandle, behindHandle func(ctx context.Context, event *Event, v interface{}) error,
 	handler legocore.Handler) (resp interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {

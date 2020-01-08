@@ -32,20 +32,31 @@ func hello(ctx context.Context, event legoscfgw.Event) (interface{}, error) {
 
 	redigos := common.ParseRedigo()
 	if len(redigos) > 0 {
+		for _, c := range redigos {
+			c.MaxActive = 1 // 强制为 1
+			c.MaxIdle = 1   // 强制为 1
+		}
 		common.InitRedigo(redigos)
 	}
 
 	sqls := common.ParseSQLDB()
 	if len(sqls) > 0 {
+		for _, c := range sqls {
+			c.MaxOpenConns = 1 // 强制为 1
+			c.MaxIdleConns = 1 // 强制为 1
+		}
 		common.InitSQLDB(sqls)
 	}
 
 	mgos := common.ParseMgo()
 	if len(mgos) > 0 {
+		for _, c := range mgos {
+			c.PoolLimit = 1 // 强制为 1
+		}
 		common.InitMgo(mgos)
 	}
 
-	return legoscfgw.Handle(ctx, event,
+	return legoscfgw.Handle(ctx, &event,
 		svcscfgw.BeforeHandleFunc, svcscfgw.BehindHandleFunc, handler)
 }
 

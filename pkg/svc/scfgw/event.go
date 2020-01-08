@@ -67,4 +67,5 @@ type Event struct {
 	StageVariables        map[string]string    `json:"stageVariables,omitempty"`
 	Path                  string               `json:"path,omitempty"`
 	HTTPMethod            string               `json:"httpMethod,omitempty"`
+	LegoParams            map[string]string    `json:"legoParams,omitempty"` // lego内部使用
 }
