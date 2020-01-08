@@ -7,6 +7,8 @@
 ├── assets                  # 资源目录
 ├── build                   # 构建部署
 ├── cmd                     # 启动参数解析
+│   ├── web                 #   传统部署
+│   └── scfgw               #   腾讯云scf gateway
 ├── configs                 # 配置目录
 │   ├── dev                 #   开发/联调/测试环境
 │   ├── local               #   本地调试环境
@@ -25,10 +27,11 @@
 │   │   ├── mgo.go          #   mongo管理
 │   │   ├── redigo.go       #   redis管理
 │   │   └── sql.go          #   sqldb管理
-│   ├── generated   # 生成代码目录（不要手工修改）
-│   │   └── handler #   处理器
-│   └── svc         # 服务管理目录
-│       ├── gin     #   gin框架
+│   ├── generated           # 生成代码目录（不要手工修改）
+│   │   └── handler         #   处理器
+│   └── svc                 # 服务管理目录
+│       ├── gin             #   gin服务
+│       ├── scfgw           #   腾讯云scf gateway服务
 │       └── svc.go
 ├── main.go
 ├── pkg             # 共有代码（可做为二方库开放）
