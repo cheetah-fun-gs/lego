@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	logger "github.com/cheetah-fun-gs/goplus/multier/multilogger"
+	mlogger "github.com/cheetah-fun-gs/goplus/multier/multilogger"
 	"github.com/cheetah-fun-gs/lego/internal/biz/handler"
 	legogin "github.com/cheetah-fun-gs/lego/pkg/svc/gin"
 	"github.com/gin-gonic/gin"
@@ -83,8 +83,8 @@ func middlewareLogger(c *gin.Context) {
 	content := strings.Join(contentSplit, ",")
 
 	if httpCode == 200 && (respCode == "0" || respCode == "-") {
-		logger.InfoN("access", content)
+		mlogger.InfoN("access", content)
 	} else {
-		logger.WarnN("access", content)
+		mlogger.WarnN("access", content)
 	}
 }
