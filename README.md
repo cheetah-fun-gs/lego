@@ -13,6 +13,9 @@
 │   ├── dev                 #   开发/联调/测试环境
 │   ├── local               #   本地调试环境
 │   └── prod                #   生产环境
+├── deployments
+│   └── faas                # faas函数目录
+│       └── scfgw           #   腾讯云scf gateway入口
 ├── internal                # 项目私有代码
 │   ├── biz                 #   业务目录
 │   │   ├── aop             #       aop层 规划中 占坑
@@ -33,8 +36,8 @@
 │       ├── gin             #   gin服务
 │       ├── scfgw           #   腾讯云scf gateway服务
 │       └── svc.go
-├── main.go
-├── pkg             # 共有代码（可做为二方库开放）
+├── main.go                 # 传统部署入口
+├── pkg                     # 共有代码（可做为二方库开放，不建议私有项目使用)
 └── vendor
 ```
 ## 使用说明
