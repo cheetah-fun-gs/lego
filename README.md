@@ -8,7 +8,7 @@
 ├── build                   # 构建部署
 ├── cmd                     # 启动参数解析
 │   ├── web                 #   传统部署
-│   └── scfgw               #   腾讯云scf gateway
+│   └── scf                 #   腾讯云scf
 ├── configs                 # 配置目录
 │   ├── dev                 #   开发/联调/测试环境
 │   ├── local               #   本地调试环境

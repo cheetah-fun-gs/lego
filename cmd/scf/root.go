@@ -1,4 +1,4 @@
-package scfgw
+package scf
 
 import (
 	"os"
