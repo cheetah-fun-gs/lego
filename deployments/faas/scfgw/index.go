@@ -13,17 +13,17 @@ import (
 )
 
 func hello(ctx context.Context, event legoscfgw.Event) (interface{}, error) {
-	action, err := legoscfgw.ParseAction(ctx, event)
+	hn, err := legoscfgw.ParseHandlerName(ctx, event)
 	if err != nil {
 		return nil, err
 	}
 
-	handler, ok := allhandler.Handlers[action]
+	handler, ok := allhandler.Handlers[hn]
 	if !ok {
-		return nil, fmt.Errorf("action %v is not found", action)
+		return nil, fmt.Errorf("handler name %v is not found", hn)
 	}
 
-	// 根据 action 加载资源
+	// 根据 handler name 加载资源
 	logs := common.ParseLogger()
 	for _, logger := range logs {
 		logger.Path = ""                // 强行关闭 scf 不需要文件日志

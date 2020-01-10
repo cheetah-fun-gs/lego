@@ -8,7 +8,7 @@ import (
 
 // ContextValue 上下文结构体
 type ContextValue struct {
-	Action string `json:"action,omitempty"`
+	HandlerName string `json:"handler_name,omitempty"`
 }
 
 // ContextData 传输用
@@ -47,13 +47,13 @@ func ContextWithValue(value *ContextValue) context.Context {
 	return context.WithValue(ctx, ctxKey, value)
 }
 
-// ContextWithAction returns a new Context that carries value u.
-func ContextWithAction(ctx context.Context, action string) context.Context {
+// ContextWithHandlerName returns a new Context that carries value u.
+func ContextWithHandlerName(ctx context.Context, handlerName string) context.Context {
 	if val, ok := ContextFetchValue(ctx); ok {
-		val.Action = action
+		val.HandlerName = handlerName
 		return ctx
 	}
-	return context.WithValue(ctx, ctxKey, &ContextValue{Action: action})
+	return context.WithValue(ctx, ctxKey, &ContextValue{HandlerName: handlerName})
 }
 
 // ContextDump 导出

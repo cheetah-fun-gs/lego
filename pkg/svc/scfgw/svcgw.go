@@ -8,22 +8,22 @@ import (
 	legocore "github.com/cheetah-fun-gs/lego/pkg/core"
 )
 
-type action struct {
-	Action string `json:"action,omitempty"`
+type handlerName struct {
+	HandlerName string `json:"handler_name,omitempty"`
 }
 
-// ParseAction ...
-func ParseAction(ctx context.Context, event Event) (string, error) {
-	act := &action{}
-	if err := json.Unmarshal(event.Body, act); err != nil {
+// ParseHandlerName ...
+func ParseHandlerName(ctx context.Context, event Event) (string, error) {
+	hn := &handlerName{}
+	if err := json.Unmarshal(event.Body, hn); err != nil {
 		return "", fmt.Errorf("act Unmarshal error: %v", err)
 	}
-	if act.Action == "" {
-		return "", fmt.Errorf("act is blank")
+	if hn.HandlerName == "" {
+		return "", fmt.Errorf("handler_name is blank")
 	}
 
-	ctx = ContextWithAction(ctx, act.Action)
-	return act.Action, nil
+	ctx = ContextWithHandlerName(ctx, hn.HandlerName)
+	return hn.HandlerName, nil
 }
 
 // Handle ...
