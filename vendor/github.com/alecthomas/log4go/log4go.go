@@ -191,6 +191,7 @@ func (log Logger) intLogf(lvl Level, format string, args ...interface{}) {
 			break
 		}
 	}
+
 	if skip {
 		return
 	}
@@ -221,7 +222,9 @@ func (log Logger) intLogf(lvl Level, format string, args ...interface{}) {
 			continue
 		}
 		filt.LogWrite(rec)
+
 	}
+
 }
 
 // Send a closure log message internally

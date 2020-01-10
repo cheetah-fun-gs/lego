@@ -28,7 +28,11 @@ func hello(ctx context.Context, event legoscfgw.Event) (interface{}, error) {
 	for _, logger := range logs {
 		logger.Path = ""                // 强行关闭 scf 不需要文件日志
 		logger.IsDisableConsole = false // 强行打开
+		if logger.CallerDepth >= 0 {
+			logger.CallerDepth++ // 使用 mlogger calldepth需要+1
+		}
 	}
+	common.InitLogger(logs)
 
 	redigos := common.ParseRedigo()
 	if len(redigos) > 0 {
@@ -36,8 +40,8 @@ func hello(ctx context.Context, event legoscfgw.Event) (interface{}, error) {
 			c.MaxActive = 1 // 强制为 1
 			c.MaxIdle = 1   // 强制为 1
 		}
-		common.InitRedigo(redigos)
 	}
+	common.InitRedigo(redigos)
 
 	sqls := common.ParseSQLDB()
 	if len(sqls) > 0 {
@@ -45,16 +49,16 @@ func hello(ctx context.Context, event legoscfgw.Event) (interface{}, error) {
 			c.MaxOpenConns = 1 // 强制为 1
 			c.MaxIdleConns = 1 // 强制为 1
 		}
-		common.InitSQLDB(sqls)
 	}
+	common.InitSQLDB(sqls)
 
 	mgos := common.ParseMgo()
 	if len(mgos) > 0 {
 		for _, c := range mgos {
 			c.PoolLimit = 1 // 强制为 1
 		}
-		common.InitMgo(mgos)
 	}
+	common.InitMgo(mgos)
 
 	return legoscfgw.Handle(ctx, &event,
 		svcscfgw.BeforeHandleFunc, svcscfgw.BehindHandleFunc, handler)

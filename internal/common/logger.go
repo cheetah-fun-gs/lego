@@ -32,6 +32,9 @@ func InitLogger(logs map[string]*log4gopulus.Config) {
 		panic("logs.default not configure")
 	} else {
 		logConfig.IsDebugMode = GlobalIsDebugMode // 以全局变量为准
+		if logConfig.CallerDepth >= 0 {
+			logConfig.CallerDepth++ // 使用 mlogger calldepth需要+1
+		}
 		mlogger.Init(log4gopulus.New("default", logConfig))
 	}
 
@@ -39,6 +42,9 @@ func InitLogger(logs map[string]*log4gopulus.Config) {
 	for name, logConfig := range logs {
 		if name != "default" {
 			logConfig.IsDebugMode = GlobalIsDebugMode // 以全局变量为准
+			if logConfig.CallerDepth >= 0 {
+				logConfig.CallerDepth++ // 使用 mlogger calldepth需要+1
+			}
 			if err := mlogger.Register(name, log4gopulus.New(name, logConfig)); err != nil {
 				panic(err)
 			}
