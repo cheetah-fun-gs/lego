@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	mmgodb "github.com/cheetah-fun-gs/goplus/multier/multimgodb"
-	"github.com/cheetah-fun-gs/goplus/structure"
 	"github.com/globalsign/mgo"
 )
 
@@ -20,7 +20,7 @@ func ParseMgo() map[string]*MgoConfig {
 	mgos := map[string]*MgoConfig{}
 	for name, data := range dbs {
 		dbConfig := &MgoConfig{}
-		if err := structure.MapToStruct(data.(map[string]interface{}), dbConfig); err != nil {
+		if err := jsonplus.Convert(data, dbConfig); err != nil {
 			panic(err)
 		}
 		mgos[name] = dbConfig

@@ -9,6 +9,8 @@ package handler
 import (
 	"fmt"
 	"time"
+
+	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 )
 
 // CommonReq 公共请求
@@ -17,6 +19,11 @@ type CommonReq struct {
 	Token     string `json:"token,omitempty"`
 	Ts        int64  `json:"ts,omitempty"`
 	RequestID string `json:"request_id,omitempty"`
+}
+
+func (commReq *CommonReq) String() string {
+	s, _ := jsonplus.ToJSON(commReq)
+	return s
 }
 
 // CommonRespCode 公共返回码
@@ -42,6 +49,11 @@ type CommonResp struct {
 	Msg       string         `json:"msg,omitempty"`
 	Ts        int64          `json:"ts,omitempty"`
 	RequestID string         `json:"request_id,omitempty"`
+}
+
+func (commResp *CommonResp) String() string {
+	s, _ := jsonplus.ToJSON(commResp)
+	return s
 }
 
 // GetCommonResp 通用返回

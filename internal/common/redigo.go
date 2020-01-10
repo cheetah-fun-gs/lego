@@ -3,9 +3,9 @@ package common
 import (
 	"time"
 
+	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	mredigopool "github.com/cheetah-fun-gs/goplus/multier/multiredigopool"
-	"github.com/cheetah-fun-gs/goplus/structure"
 	redigo "github.com/gomodule/redigo/redis"
 )
 
@@ -19,7 +19,7 @@ func ParseRedigo() map[string]*RedigoConfig {
 	redigos := map[string]*RedigoConfig{}
 	for name, data := range dbs {
 		dbConfig := &RedigoConfig{}
-		if err := structure.MapToStruct(data.(map[string]interface{}), dbConfig); err != nil {
+		if err := jsonplus.Convert(data, dbConfig); err != nil {
 			panic(err)
 		}
 		redigos[name] = dbConfig

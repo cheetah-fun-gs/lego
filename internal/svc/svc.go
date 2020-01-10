@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
+	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
-	"github.com/cheetah-fun-gs/goplus/structure"
 	svcgin "github.com/cheetah-fun-gs/lego/internal/svc/gin"
 )
 
@@ -25,7 +25,7 @@ func init() {
 		for key, val := range v.(map[interface{}]interface{}) {
 			vv[key.(string)] = val
 		}
-		if err := structure.MapToStruct(vv, svcConfig); err != nil {
+		if err := jsonplus.Convert(vv, svcConfig); err != nil {
 			panic(err)
 		}
 		switch svcConfig.Type {

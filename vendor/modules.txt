@@ -1,11 +1,12 @@
 # github.com/alecthomas/log4go v0.0.0-20180109082532-d146e6b86faa
 github.com/alecthomas/log4go
-# github.com/cheetah-fun-gs/goplus v0.0.35
+# github.com/cheetah-fun-gs/goplus v1.0.1
 github.com/cheetah-fun-gs/goplus/configer
 github.com/cheetah-fun-gs/goplus/configer/viper
 github.com/cheetah-fun-gs/goplus/dao/sql
 github.com/cheetah-fun-gs/goplus/encoding/basen
 github.com/cheetah-fun-gs/goplus/encoding/binary
+github.com/cheetah-fun-gs/goplus/encoding/json
 github.com/cheetah-fun-gs/goplus/logger
 github.com/cheetah-fun-gs/goplus/logger/log4go
 github.com/cheetah-fun-gs/goplus/multier/multiconfiger
@@ -15,7 +16,6 @@ github.com/cheetah-fun-gs/goplus/multier/multiredigopool
 github.com/cheetah-fun-gs/goplus/multier/multisqldb
 github.com/cheetah-fun-gs/goplus/number
 github.com/cheetah-fun-gs/goplus/path/filepath
-github.com/cheetah-fun-gs/goplus/structure
 github.com/cheetah-fun-gs/goplus/uuid
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify

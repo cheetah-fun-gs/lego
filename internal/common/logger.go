@@ -1,10 +1,10 @@
 package common
 
 import (
+	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 	log4gopulus "github.com/cheetah-fun-gs/goplus/logger/log4go"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	mlogger "github.com/cheetah-fun-gs/goplus/multier/multilogger"
-	"github.com/cheetah-fun-gs/goplus/structure"
 )
 
 // ParseLogger 解析所有日志器配置
@@ -17,7 +17,7 @@ func ParseLogger() map[string]*log4gopulus.Config {
 	loggers := map[string]*log4gopulus.Config{}
 	for name, data := range logs {
 		logConfig := &log4gopulus.Config{}
-		if err := structure.MapToStruct(data.(map[string]interface{}), logConfig); err != nil {
+		if err := jsonplus.Convert(data, logConfig); err != nil {
 			panic(err)
 		}
 		loggers[name] = logConfig

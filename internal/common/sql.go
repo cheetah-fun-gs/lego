@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	sqlplus "github.com/cheetah-fun-gs/goplus/dao/sql"
+	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	msqldb "github.com/cheetah-fun-gs/goplus/multier/multisqldb"
-	"github.com/cheetah-fun-gs/goplus/structure"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -21,7 +21,7 @@ func ParseSQLDB() map[string]*SQLConfig {
 	sqls := map[string]*SQLConfig{}
 	for name, data := range dbs {
 		dbConfig := &SQLConfig{}
-		if err := structure.MapToStruct(data.(map[string]interface{}), dbConfig); err != nil {
+		if err := jsonplus.Convert(data, dbConfig); err != nil {
 			panic(err)
 		}
 		sqls[name] = dbConfig
