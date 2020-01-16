@@ -1,7 +1,6 @@
 package common
 
 import (
-	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 	log4gopulus "github.com/cheetah-fun-gs/goplus/logger/log4go"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	mlogger "github.com/cheetah-fun-gs/goplus/multier/multilogger"
@@ -9,19 +8,16 @@ import (
 
 // ParseLogger 解析所有日志器配置
 func ParseLogger() map[string]*log4gopulus.Config {
-	_, logs, err := mconfiger.GetMapN("logger", "logs")
+	loggers := map[string]*log4gopulus.Config{}
+
+	ok, err := mconfiger.GetAnyN("logger", "logs", &loggers)
 	if err != nil {
 		panic(err)
 	}
-
-	loggers := map[string]*log4gopulus.Config{}
-	for name, data := range logs {
-		logConfig := &log4gopulus.Config{}
-		if err := jsonplus.Convert(data, logConfig); err != nil {
-			panic(err)
-		}
-		loggers[name] = logConfig
+	if !ok {
+		panic("logger logs not configure")
 	}
+
 	return loggers
 }
 

@@ -22,7 +22,7 @@ type CommonReq struct {
 }
 
 func (commReq *CommonReq) String() string {
-	s, _ := jsonplus.ToJSON(commReq)
+	s, _ := jsonplus.Dump(commReq)
 	return s
 }
 
@@ -52,7 +52,7 @@ type CommonResp struct {
 }
 
 func (commResp *CommonResp) String() string {
-	s, _ := jsonplus.ToJSON(commResp)
+	s, _ := jsonplus.Dump(commResp)
 	return s
 }
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	mmgodb "github.com/cheetah-fun-gs/goplus/multier/multimgodb"
 	"github.com/globalsign/mgo"
@@ -12,18 +11,10 @@ import (
 
 // ParseMgo ...
 func ParseMgo() map[string]*MgoConfig {
-	_, dbs, err := mconfiger.GetMapN("mgo", "dbs")
+	mgos := map[string]*MgoConfig{}
+	_, err := mconfiger.GetAnyN("mgo", "dbs", &mgos)
 	if err != nil {
 		panic(err)
-	}
-
-	mgos := map[string]*MgoConfig{}
-	for name, data := range dbs {
-		dbConfig := &MgoConfig{}
-		if err := jsonplus.Convert(data, dbConfig); err != nil {
-			panic(err)
-		}
-		mgos[name] = dbConfig
 	}
 	return mgos
 }
@@ -105,7 +96,7 @@ func (m *MgoConfig) Conn() (*mgo.Database, error) {
 
 // CollectionName 获取 默认 mongo collection name
 func CollectionName(collectName string) string {
-	if mconfiger.GetBoolDN("mongo", "dbs.default.is_use_test_collection", false) {
+	if mconfiger.GetBoolND("mongo", "dbs.default.is_use_test_collection", false) {
 		return collectName + ".test"
 	}
 	return collectName
@@ -114,7 +105,7 @@ func CollectionName(collectName string) string {
 // CollectionNameN 获取 指定 mongo collection name
 func CollectionNameN(name, collectName string) string {
 	key := fmt.Sprintf("dbs.%s.is_use_test_collection", name)
-	if mconfiger.GetBoolDN("mongo", key, false) {
+	if mconfiger.GetBoolND("mongo", key, false) {
 		return collectName + ".test"
 	}
 	return collectName

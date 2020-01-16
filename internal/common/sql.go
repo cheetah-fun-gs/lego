@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	sqlplus "github.com/cheetah-fun-gs/goplus/dao/sql"
-	jsonplus "github.com/cheetah-fun-gs/goplus/encoding/json"
 	mconfiger "github.com/cheetah-fun-gs/goplus/multier/multiconfiger"
 	msqldb "github.com/cheetah-fun-gs/goplus/multier/multisqldb"
 	"github.com/go-sql-driver/mysql"
@@ -13,18 +12,10 @@ import (
 
 // ParseSQLDB ...
 func ParseSQLDB() map[string]*SQLConfig {
-	_, dbs, err := mconfiger.GetMapN("sql", "dbs")
+	sqls := map[string]*SQLConfig{}
+	_, err := mconfiger.GetAnyN("sql", "dbs", &sqls)
 	if err != nil {
 		panic(err)
-	}
-
-	sqls := map[string]*SQLConfig{}
-	for name, data := range dbs {
-		dbConfig := &SQLConfig{}
-		if err := jsonplus.Convert(data, dbConfig); err != nil {
-			panic(err)
-		}
-		sqls[name] = dbConfig
 	}
 	return sqls
 }
